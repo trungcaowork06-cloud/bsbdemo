@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị Cartoon Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Quicksand',sans-serif; }
+        body {
+            background: var(--admin-bg, #e9e2d0);
+            display: flex;
+            min-height: 100vh;
+        }
+        :root {
+            --admin-bg: #e9e2d0;
+            --admin-sidebar-bg: #2d2b1f;
+            --admin-sidebar-text: #ffecb3;
+            --admin-content-bg: #fff6e8;
+            --admin-border: #1f1a10;
+            --admin-btn: #f0bc6e;
+        }
+        .sidebar {
+            width: 260px;
+            background: var(--admin-sidebar-bg);
+            color: var(--admin-sidebar-text);
+            padding: 1.5rem 1rem;
+            border-right: 4px solid var(--admin-border);
+        }
+        .sidebar h2 { font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 2rem; text-align: center; color: #ffc857; }
+        .sidebar nav a {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin: 8px 0;
+            background: #3f3c2e; border-radius: 40px; text-decoration: none; color: var(--admin-sidebar-text);
+            font-weight: bold; border: 1px solid #6b5a3e;
+        }
+        .sidebar nav a:hover, .sidebar nav a.active { background: var(--admin-btn); color: #2d2b1f; box-shadow: 3px 3px 0 var(--admin-border); }
+        .main-content { flex: 1; padding: 1.5rem; overflow-y: auto; }
+        .admin-panel { background: var(--admin-content-bg); border-radius: 48px; border: 4px solid var(--admin-border); padding: 1.5rem; box-shadow: 12px 12px 0 #bbaa7a; }
+        .section { display: none; }
+        .section.active { display: block; }
+        h2 { font-family: 'Fredoka One', cursive; margin-bottom: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        label { font-weight: 700; display: block; margin-bottom: 5px; }
+        input, textarea, button, select { padding: 8px 14px; border-radius: 60px; border: 2px solid #2b241a; font-weight: bold; margin-right: 8px; margin-top: 5px; background: white; }
+        button { background: var(--admin-btn); cursor: pointer; box-shadow: 3px 3px 0 #6b4c2c; transition: 0.05s linear; }
+        button:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 #6b4c2c; }
+        .color-input { width: 60px; height: 40px; }
+        .preview-img { max-width: 100px; border-radius: 20px; margin-top: 8px; }
+        .product-list, .cat-list, .rental-list { margin-top: 1rem; }
+        .product-item, .cat-item, .rental-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #f9f2e0; padding: 8px 16px; border-radius: 60px; margin-bottom: 10px; border: 2px solid #9b7a4a;
+        }
+        .login-form { max-width: 360px; margin: 2rem auto; text-align: center; background: #fff6e8; padding: 2rem; border-radius: 60px; border: 4px solid #1f1a10; }
+        @media (max-width: 800px) { body { flex-direction: column; } .sidebar { width: 100%; text-align: center; } }
+    </style>
+</head>
+<body>
+<div id="loginSection" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:#e9e2d0; z-index:2000; justify-content:center; align-items:center;">
+    <div class="login-form">
+        <h2>🔐 Đăng nhập</h2>
+        <input type="text" id="username" value="admin"><br><br>
+        <input type="password" id="password" value="admin123"><br><br>
+        <button id="doLogin">Đăng nhập</button>
+    </div>
+</div>
+
+<div id="adminApp" style="display: flex; width: 100%;">
+    <div class="sidebar">
+        <h2><i class="fas fa-crown"></i> Cartoon Admin</h2>
+        <nav>
+            <a href="#" data-section="general"><i class="fas fa-home"></i> Tổng quan</a>
+            <a href="#" data-section="color"><i class="fas fa-palette"></i> Màu sắc web</a>
+            <a href="#" data-section="admincolor"><i class="fas fa-paintbrush"></i> Màu quản trị</a>
+            <a href="#" data-section="font"><i class="fas fa-font"></i> Font chữ</a>
+            <a href="#" data-section="payment"><i class="fas fa-credit-card"></i> Thanh toán & footer</a>
+            <a href="#" data-section="banner"><i class="fas fa-image"></i> Banner</a>
+            <a href="#" data-section="category"><i class="fas fa-list"></i> Danh mục</a>
+            <a href="#" data-section="product"><i class="fas fa-box"></i> Sản phẩm</a>
+            <a href="#" data-section="rental"><i class="fas fa-camera"></i> Cho thuê máy</a>
+        </nav>
+    </div>
+    <div class="main-content">
+        <div class="admin-panel">
+            <!-- Tổng quan -->
+            <div id="section-general" class="section active">
+                <h2>📌 Cấu hình chung</h2>
+                <div class="form-group"><label>Tên shop</label><input type="text" id="shopNameInput"></div>
+                <div class="form-group"><label>Logo (URL / upload)</label><input type="text" id="logoUrlInput"><input type="file" id="logoUpload" accept="image/*"><img id="logoPreview" class="preview-img" style="display:none;"></div>
+                <div class="form-group"><label>Nút thuê máy ảnh (văn bản)</label><input type="text" id="rentButtonLabelInput" placeholder="📸 Thuê máy ảnh"></div>
+                <button id="saveGeneralBtn">💾 Lưu chung</button>
+            </div>
+
+            <!-- Màu sắc trang chủ -->
+            <div id="section-color" class="section">
+                <h2>🎨 Màu sắc trang chủ</h2>
+                <div class="form-group"><label>Màu nền</label><input type="color" id="bgBody" class="color-input"></div>
+                <div class="form-group"><label>Màu nền header</label><input type="color" id="headerBg" class="color-input"></div>
+                <div class="form-group"><label>Màu chữ tên shop</label><input type="color" id="headerText" class="color-input"></div>
+                <div class="form-group"><label>Màu nút chính</label><input type="color" id="primaryBtn" class="color-input"></div>
+                <div class="form-group"><label>Màu viền đậm</label><input type="color" id="borderDark" class="color-input"></div>
+                <div class="form-group"><label>Màu nền giỏ hàng</label><input type="color" id="cartBg" class="color-input"></div>
+                <div class="form-group"><label>Màu nền footer</label><input type="color" id="footerBg" class="color-input"></div>
+                <div class="form-group"><label>Màu chữ footer</label><input type="color" id="footerTextColor" class="color-input"></div>
+                <button id="saveColorBtn">💾 Lưu màu web</button>
+                <button id="resetColorBtn" style="background:#d98c5f;">🔄 Reset mặc định</button>
+            </div>
+
+            <!-- Màu quản trị -->
+            <div id="section-admincolor" class="section">
+                <h2>🖌️ Màu trang quản trị</h2>
+                <div class="form-group"><label>Nền tổng</label><input type="color" id="adminBg" class="color-input"></div>
+                <div class="form-group"><label>Nền sidebar</label><input type="color" id="adminSidebarBg" class="color-input"></div>
+                <div class="form-group"><label>Chữ sidebar</label><input type="color" id="adminSidebarText" class="color-input"></div>
+                <div class="form-group"><label>Nền nội dung</label><input type="color" id="adminContentBg" class="color-input"></div>
+                <div class="form-group"><label>Viền chính</label><input type="color" id="adminBorder" class="color-input"></div>
+                <div class="form-group"><label>Màu nút</label><input type="color" id="adminBtn" class="color-input"></div>
+                <button id="saveAdminColorBtn">💾 Lưu màu quản trị</button>
+            </div>
+
+            <!-- Font chữ -->
+            <div id="section-font" class="section">
+                <h2>🔤 Font chữ & kiểu</h2>
+                <div class="form-group"><label>Font chữ chính</label><select id="mainFontSelect"><option value="'Quicksand', sans-serif">Quicksand</option><option value="'Poppins', sans-serif">Poppins</option><option value="'Roboto', sans-serif">Roboto</option><option value="'Nunito', sans-serif">Nunito</option><option value="'Comic Neue', cursive">Comic Neue</option></select></div>
+                <div class="form-group"><label>Cỡ chữ cơ bản (px)</label><input type="number" id="baseFontSize" min="12" max="20" value="16"></div>
+                <div class="form-group"><label>Cỡ chữ tên sản phẩm (px)</label><input type="number" id="productNameSize" min="16" max="30" value="20"></div>
+                <div class="form-group"><label>Cỡ chữ giá (px)</label><input type="number" id="productPriceSize" min="18" max="32" value="22"></div>
+                <div class="form-group"><label>Cỡ chữ tiêu đề giỏ (px)</label><input type="number" id="cartTitleSize" min="20" max="36" value="26"></div>
+                <div class="form-group"><label>Cỡ chữ nút bấm (px)</label><input type="number" id="buttonFontSize" min="12" max="20" value="16"></div>
+                <div class="form-group"><label>Độ đậm chữ sản phẩm</label><select id="productWeight"><option value="400">Normal (400)</option><option value="500">Medium (500)</option><option value="600">Semi-bold (600)</option><option value="700" selected>Bold (700)</option><option value="800">Extra bold (800)</option></select></div>
+                <button id="saveFontBtn">💾 Lưu font chữ</button>
+            </div>
+
+            <!-- Thanh toán & footer -->
+            <div id="section-payment" class="section">
+                <h2>💳 Nội dung thanh toán & footer</h2>
+                <div class="form-group"><label>Văn bản modal thanh toán</label><textarea id="paymentText" rows="3"></textarea></div>
+                <div class="form-group"><label>Facebook link</label><input type="url" id="fbLinkInput"></div>
+                <div class="form-group"><label>Instagram link</label><input type="url" id="igLinkInput"></div>
+                <div class="form-group"><label>Nội dung footer</label><input type="text" id="footerTextInput"></div>
+                <button id="savePaymentBtn">💾 Lưu</button>
+            </div>
+
+            <!-- Banner -->
+            <div id="section-banner" class="section">
+                <h2>🖼️ Banner chính</h2>
+                <div class="form-group"><input type="text" id="bannerUrlInput" placeholder="URL ảnh"><input type="file" id="bannerUpload" accept="image/*"><button id="updateBannerBtn">Cập nhật</button><div id="bannerPreviewArea"></div></div>
+            </div>
+
+            <!-- Danh mục -->
+            <div id="section-category" class="section">
+                <h2>📂 Danh mục</h2>
+                <div class="form-group"><input type="text" id="catName" placeholder="Tên mới"><button id="addCatBtn">➕ Thêm</button></div>
+                <div id="catList" class="cat-list"></div>
+            </div>
+
+            <!-- Sản phẩm -->
+            <div id="section-product" class="section">
+                <h2>📦 Sản phẩm (có tồn kho)</h2>
+                <div style="display:flex; flex-wrap:wrap; gap:8px;"><input type="text" id="prodName" placeholder="Tên"><input type="number" id="prodPrice" placeholder="Giá"><input type="number" id="prodStock" placeholder="Tồn kho"><input type="text" id="prodImage" placeholder="URL ảnh"><input type="file" id="prodImageFile" accept="image/*"><select id="prodCategory"></select><button id="addOrUpdateBtn">💾 Lưu</button><input type="hidden" id="editId"></div>
+                <div id="productList" class="product-list"></div>
+            </div>
+
+            <!-- Cho thuê máy ảnh -->
+            <div id="section-rental" class="section">
+                <h2>📸 Quản lý máy cho thuê</h2>
+                <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                    <input type="text" id="rentName" placeholder="Tên máy">
+                    <input type="number" id="rentPrice" placeholder="Giá/ngày">
+                    <input type="number" id="rentStock" placeholder="Số lượng">
+                    <input type="text" id="rentImage" placeholder="URL ảnh">
+                    <input type="file" id="rentImageFile" accept="image/*">
+                    <button id="addRentBtn">➕ Thêm máy</button>
+                    <input type="hidden" id="editRentId">
+                </div>
+                <div id="rentalList" class="rental-list"></div>
+            </div>
+            <button id="logoutBtn" style="margin-top:1rem; background:#b45a3b;">🚪 Đăng xuất</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let config = {}, categories = [], products = [], rentItems = [];
+
+    function checkAuth() {
+        if (sessionStorage.getItem('admin_auth') === 'true') {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminApp').style.display = 'flex';
+            loadAllData();
+            applyAdminTheme();
+        } else {
+            document.getElementById('loginSection').style.display = 'flex';
+            document.getElementById('adminApp').style.display = 'none';
+        }
+    }
+
+    function loadAllData() { loadConfig(); loadCategories(); loadProducts(); loadRentals(); renderCategorySelect(); showBannerPreview(); renderCategoryList(); renderProductList(); renderRentalList(); }
+
+    function loadConfig() {
+        const stored = localStorage.getItem('site_config');
+        if (stored) config = JSON.parse(stored);
+        else {
+            config = {
+                shopName: "FilmStore Cartoon", logoUrl: "", mainBannerUrl: "", facebookCheckout: "", instagramCheckout: "",
+                paymentText: "Chọn kênh để hoàn tất đơn hàng:", footerText: "© 2025 FilmStore Cartoon", rentButtonLabel: "📸 Thuê máy ảnh",
+                theme: { bgBody: "#fff9ef", headerBg: "#ffe5b4", headerText: "#d43f1f", primaryBtn: "#f0bc6e", borderDark: "#1f1a12", cartBg: "#fff1df", footerBg: "#2d2b1f", footerText: "#ffecb3" },
+                adminTheme: { bg: "#e9e2d0", sidebarBg: "#2d2b1f", sidebarText: "#ffecb3", contentBg: "#fff6e8", border: "#1f1a10", btn: "#f0bc6e" },
+                fontConfig: { mainFont: "'Quicksand', sans-serif", baseFontSize: 16, productNameSize: 20, productPriceSize: 22, cartTitleSize: 26, buttonFontSize: 16, productWeight: 700 }
+            };
+            localStorage.setItem('site_config', JSON.stringify(config));
+        }
+        // Fill form
+        document.getElementById('shopNameInput').value = config.shopName || '';
+        document.getElementById('logoUrlInput').value = config.logoUrl || '';
+        document.getElementById('bannerUrlInput').value = config.mainBannerUrl || '';
+        document.getElementById('fbLinkInput').value = config.facebookCheckout || '';
+        document.getElementById('igLinkInput').value = config.instagramCheckout || '';
+        document.getElementById('paymentText').value = config.paymentText || '';
+        document.getElementById('footerTextInput').value = config.footerText || '';
+        document.getElementById('rentButtonLabelInput').value = config.rentButtonLabel || "📸 Thuê máy ảnh";
+        // theme
+        const t = config.theme || {};
+        document.getElementById('bgBody').value = t.bgBody || "#fff9ef";
+        document.getElementById('headerBg').value = t.headerBg || "#ffe5b4";
+        document.getElementById('headerText').value = t.headerText || "#d43f1f";
+        document.getElementById('primaryBtn').value = t.primaryBtn || "#f0bc6e";
+        document.getElementById('borderDark').value = t.borderDark || "#1f1a12";
+        document.getElementById('cartBg').value = t.cartBg || "#fff1df";
+        document.getElementById('footerBg').value = t.footerBg || "#2d2b1f";
+        document.getElementById('footerTextColor').value = t.footerText || "#ffecb3";
+        // admin theme
+        const at = config.adminTheme || {};
+        document.getElementById('adminBg').value = at.bg || "#e9e2d0";
+        document.getElementById('adminSidebarBg').value = at.sidebarBg || "#2d2b1f";
+        document.getElementById('adminSidebarText').value = at.sidebarText || "#ffecb3";
+        document.getElementById('adminContentBg').value = at.contentBg || "#fff6e8";
+        document.getElementById('adminBorder').value = at.border || "#1f1a10";
+        document.getElementById('adminBtn').value = at.btn || "#f0bc6e";
+        // font
+        const fc = config.fontConfig || {};
+        document.getElementById('mainFontSelect').value = fc.mainFont || "'Quicksand', sans-serif";
+        document.getElementById('baseFontSize').value = fc.baseFontSize || 16;
+        document.getElementById('productNameSize').value = fc.productNameSize || 20;
+        document.getElementById('productPriceSize').value = fc.productPriceSize || 22;
+        document.getElementById('cartTitleSize').value = fc.cartTitleSize || 26;
+        document.getElementById('buttonFontSize').value = fc.buttonFontSize || 16;
+        document.getElementById('productWeight').value = fc.productWeight || 700;
+        if (config.logoUrl) { document.getElementById('logoPreview').src = config.logoUrl; document.getElementById('logoPreview').style.display = 'block'; }
+    }
+
+    function applyAdminTheme() {
+        const at = config.adminTheme || {};
+        const root = document.documentElement.style;
+        root.setProperty('--admin-bg', at.bg);
+        root.setProperty('--admin-sidebar-bg', at.sidebarBg);
+        root.setProperty('--admin-sidebar-text', at.sidebarText);
+        root.setProperty('--admin-content-bg', at.contentBg);
+        root.setProperty('--admin-border', at.border);
+        root.setProperty('--admin-btn', at.btn);
+    }
+
+    function saveGeneral() {
+        config.shopName = document.getElementById('shopNameInput').value;
+        config.rentButtonLabel = document.getElementById('rentButtonLabelInput').value;
+        let logoUrl = document.getElementById('logoUrlInput').value;
+        const file = document.getElementById('logoUpload').files[0];
+        if (file) { const reader = new FileReader(); reader.onload = e => { config.logoUrl = e.target.result; finalSaveGeneral(); }; reader.readAsDataURL(file); }
+        else { config.logoUrl = logoUrl; finalSaveGeneral(); }
+    }
+    function finalSaveGeneral() { localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu'); loadConfig(); }
+
+    function saveColor() {
+        config.theme = {
+            bgBody: document.getElementById('bgBody').value, headerBg: document.getElementById('headerBg').value,
+            headerText: document.getElementById('headerText').value, primaryBtn: document.getElementById('primaryBtn').value,
+            borderDark: document.getElementById('borderDark').value, cartBg: document.getElementById('cartBg').value,
+            footerBg: document.getElementById('footerBg').value, footerText: document.getElementById('footerTextColor').value
+        };
+        localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu màu web');
+    }
+    function resetColor() {
+        const defaultTheme = { bgBody: "#fff9ef", headerBg: "#ffe5b4", headerText: "#d43f1f", primaryBtn: "#f0bc6e", borderDark: "#1f1a12", cartBg: "#fff1df", footerBg: "#2d2b1f", footerText: "#ffecb3" };
+        config.theme = defaultTheme;
+        localStorage.setItem('site_config', JSON.stringify(config));
+        loadConfig(); alert('Đã reset màu về mặc định');
+    }
+    function saveAdminColor() {
+        config.adminTheme = {
+            bg: document.getElementById('adminBg').value, sidebarBg: document.getElementById('adminSidebarBg').value,
+            sidebarText: document.getElementById('adminSidebarText').value, contentBg: document.getElementById('adminContentBg').value,
+            border: document.getElementById('adminBorder').value, btn: document.getElementById('adminBtn').value
+        };
+        localStorage.setItem('site_config', JSON.stringify(config)); applyAdminTheme(); alert('Đã lưu màu quản trị');
+    }
+    function saveFont() {
+        config.fontConfig = {
+            mainFont: document.getElementById('mainFontSelect').value, baseFontSize: parseInt(document.getElementById('baseFontSize').value),
+            productNameSize: parseInt(document.getElementById('productNameSize').value), productPriceSize: parseInt(document.getElementById('productPriceSize').value),
+            cartTitleSize: parseInt(document.getElementById('cartTitleSize').value), buttonFontSize: parseInt(document.getElementById('buttonFontSize').value),
+            productWeight: document.getElementById('productWeight').value
+        };
+        localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu cấu hình font chữ');
+    }
+    function savePayment() {
+        config.facebookCheckout = document.getElementById('fbLinkInput').value;
+        config.instagramCheckout = document.getElementById('igLinkInput').value;
+        config.paymentText = document.getElementById('paymentText').value;
+        config.footerText = document.getElementById('footerTextInput').value;
+        localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu');
+    }
+    function updateBanner() {
+        let url = document.getElementById('bannerUrlInput').value.trim();
+        const file = document.getElementById('bannerUpload').files[0];
+        if (file) { const reader = new FileReader(); reader.onload = e => { config.mainBannerUrl = e.target.result; finalSaveBanner(); }; reader.readAsDataURL(file); }
+        else if (url) { config.mainBannerUrl = url; finalSaveBanner(); }
+        else alert('Nhập URL hoặc chọn ảnh');
+    }
+    function finalSaveBanner() { localStorage.setItem('site_config', JSON.stringify(config)); alert('Banner cập nhật'); showBannerPreview(); document.getElementById('bannerUrlInput').value = config.mainBannerUrl; document.getElementById('bannerUpload').value = ''; }
+    function showBannerPreview() { const area = document.getElementById('bannerPreviewArea'); if (config.mainBannerUrl) area.innerHTML = `<img src="${config.mainBannerUrl}" style="max-width:200px; border-radius:20px;">`; else area.innerHTML = '<p>Chưa có banner</p>'; }
+
+    // Categories (giữ nguyên)
+    function loadCategories() { const stored = localStorage.getItem('site_categories'); categories = stored ? JSON.parse(stored) : [{ id:1, name:"📷 Phim máy ảnh" }, { id:2, name:"📸 Máy ảnh" }]; renderCategoryList(); renderCategorySelect(); }
+    function saveCategories() { localStorage.setItem('site_categories', JSON.stringify(categories)); }
+    function renderCategoryList() {
+        let html = ''; categories.forEach((cat,idx)=>{ html+=`<div class="cat-item"><div><strong>${idx+1}.</strong> ${escapeHtml(cat.name)}</div><div>${idx>0?`<button class="move-up" data-id="${cat.id}">⬆️</button>`:''}${idx<categories.length-1?`<button class="move-down" data-id="${cat.id}">⬇️</button>`:''}<button class="editCat" data-id="${cat.id}">✏️</button><button class="delCat" data-id="${cat.id}">🗑️</button></div></div>`; });
+        document.getElementById('catList').innerHTML = html;
+        document.querySelectorAll('.move-up').forEach(btn=>btn.onclick=()=>{ let id=parseInt(btn.dataset.id), i=categories.findIndex(c=>c.id===id); if(i>0){ [categories[i-1],categories[i]]=[categories[i],categories[i-1]]; saveCategories(); renderCategoryList(); renderCategorySelect(); } });
+        document.querySelectorAll('.move-down').forEach(btn=>btn.onclick=()=>{ let id=parseInt(btn.dataset.id), i=categories.findIndex(c=>c.id===id); if(i<categories.length-1){ [categories[i+1],categories[i]]=[categories[i],categories[i+1]]; saveCategories(); renderCategoryList(); renderCategorySelect(); } });
+        document.querySelectorAll('.editCat').forEach(btn=>btn.onclick=()=>{ let id=parseInt(btn.dataset.id), cat=categories.find(c=>c.id===id), newName=prompt('Tên mới:',cat.name); if(newName){ cat.name=newName; saveCategories(); renderCategoryList(); renderCategorySelect(); } });
+        document.querySelectorAll('.delCat').forEach(btn=>btn.onclick=()=>{ if(confirm('Xóa?')){ let id=parseInt(btn.dataset.id); categories=categories.filter(c=>c.id!==id); if(categories.length){ let firstId=categories[0].id; products.forEach(p=>{ if(p.categoryId===id) p.categoryId=firstId; }); saveProducts(); } saveCategories(); renderCategoryList(); renderCategorySelect(); renderProductList(); } });
+    }
+    function addCategory() { let name=document.getElementById('catName').value.trim(); if(!name) return; let newId=categories.length?Math.max(...categories.map(c=>c.id))+1:3; categories.push({id:newId,name}); saveCategories(); renderCategoryList(); renderCategorySelect(); document.getElementById('catName').value=''; }
+    function renderCategorySelect() { let sel=document.getElementById('prodCategory'); sel.innerHTML=''; categories.forEach(c=>sel.appendChild(new Option(c.name,c.id))); }
+
+    // Products
+    function loadProducts() { const stored = localStorage.getItem('filmstore_products'); if(stored) products=JSON.parse(stored); else products=[{id:1,name:"Kodak Portra 400",price:350000,imageUrl:"https://picsum.photos/id/20/200/150",categoryId:1,stock:10},{id:2,name:"Fujifilm Superia 400",price:280000,imageUrl:"https://picsum.photos/id/21/200/150",categoryId:1,stock:8},{id:3,name:"Máy ảnh phim Canon AE-1",price:4500000,imageUrl:"https://picsum.photos/id/1/200/150",categoryId:2,stock:3}]; products.forEach(p=>{if(p.stock===undefined)p.stock=10;}); saveProducts(); renderProductList(); }
+    function saveProducts() { localStorage.setItem('filmstore_products',JSON.stringify(products)); }
+    function renderProductList() { let html=''; products.forEach(p=>{ let catName=categories.find(c=>c.id===p.categoryId)?.name||'?'; html+=`<div class="product-item"><div style="display:flex;gap:10px;"><img src="${p.imageUrl||'https://via.placeholder.com/50'}" style="width:45px;height:45px;border-radius:20px;"><div><strong>${escapeHtml(p.name)}</strong><br>${p.price.toLocaleString('vi-VN')}₫<br><small>${catName}</small><br>Tồn: ${p.stock}</div></div><div><button class="editProd" data-id="${p.id}">Sửa</button><button class="deleteProd" data-id="${p.id}">Xóa</button></div></div>`; }); document.getElementById('productList').innerHTML=html;
+        document.querySelectorAll('.editProd').forEach(btn=>btn.onclick=()=>{ let id=parseInt(btn.dataset.id), p=products.find(p=>p.id===id); if(p){ document.getElementById('prodName').value=p.name; document.getElementById('prodPrice').value=p.price; document.getElementById('prodStock').value=p.stock; document.getElementById('prodImage').value=p.imageUrl||''; document.getElementById('prodCategory').value=p.categoryId; document.getElementById('editId').value=p.id; } });
+        document.querySelectorAll('.deleteProd').forEach(btn=>btn.onclick=()=>{ if(confirm('Xóa?')){ let id=parseInt(btn.dataset.id); products=products.filter(p=>p.id!==id); saveProducts(); renderProductList(); let cart=JSON.parse(localStorage.getItem('filmstore_cart')||'[]'); cart=cart.filter(c=>c.id!==id); localStorage.setItem('filmstore_cart',JSON.stringify(cart)); } });
+    }
+    function addOrUpdateProduct() { let name=document.getElementById('prodName').value.trim(), price=parseInt(document.getElementById('prodPrice').value), stock=parseInt(document.getElementById('prodStock').value), imageUrl=document.getElementById('prodImage').value.trim(), categoryId=parseInt(document.getElementById('prodCategory').value), editId=document.getElementById('editId').value; if(!name||isNaN(price)||isNaN(stock)){ alert('Đủ thông tin'); return; } const file=document.getElementById('prodImageFile').files[0]; if(file){ const reader=new FileReader(); reader.onload=e=>performSave(name,price,stock,e.target.result,categoryId,editId); reader.readAsDataURL(file); } else performSave(name,price,stock,imageUrl,categoryId,editId); }
+    function performSave(name,price,stock,imageUrl,categoryId,editId){ if(editId){ let idx=products.findIndex(p=>p.id==editId); if(idx!==-1) products[idx]={...products[idx],name,price,stock,imageUrl,categoryId}; } else{ let newId=products.length?Math.max(...products.map(p=>p.id))+1:4; products.push({id:newId,name,price,stock,imageUrl,categoryId}); } saveProducts(); renderProductList(); document.getElementById('prodName').value=''; document.getElementById('prodPrice').value=''; document.getElementById('prodStock').value=''; document.getElementById('prodImage').value=''; document.getElementById('prodImageFile').value=''; document.getElementById('editId').value=''; alert('Đã lưu'); }
+
+    // Rental management
+    function loadRentals() { const stored = localStorage.getItem('rental_items'); if(stored) rentItems = JSON.parse(stored); else rentItems = [ { id:1, name:"Canon EOS 5D Mark IV", pricePerDay:450000, imageUrl:"https://picsum.photos/id/1/200/150", stock:3 }, { id:2, name:"Sony A7 III", pricePerDay:400000, imageUrl:"https://picsum.photos/id/2/200/150", stock:2 }, { id:3, name:"Fujifilm X-T4", pricePerDay:350000, imageUrl:"https://picsum.photos/id/3/200/150", stock:4 } ]; saveRentals(); renderRentalList(); }
+    function saveRentals() { localStorage.setItem('rental_items', JSON.stringify(rentItems)); }
+    function renderRentalList() { let html=''; rentItems.forEach(item=>{ html+=`<div class="rental-item"><div style="display:flex;gap:10px;"><img src="${item.imageUrl||'https://via.placeholder.com/50'}" style="width:45px;height:45px;border-radius:20px;"><div><strong>${escapeHtml(item.name)}</strong><br>${item.pricePerDay.toLocaleString('vi-VN')}₫/ngày<br>Tồn: ${item.stock}</div></div><div><button class="editRent" data-id="${item.id}">Sửa</button><button class="deleteRent" data-id="${item.id}">Xóa</button></div></div>`; }); document.getElementById('rentalList').innerHTML=html;
+        document.querySelectorAll('.editRent').forEach(btn=>btn.onclick=()=>{ let id=parseInt(btn.dataset.id), item=rentItems.find(i=>i.id===id); if(item){ document.getElementById('rentName').value=item.name; document.getElementById('rentPrice').value=item.pricePerDay; document.getElementById('rentStock').value=item.stock; document.getElementById('rentImage').value=item.imageUrl||''; document.getElementById('editRentId').value=item.id; } });
+        document.querySelectorAll('.deleteRent').forEach(btn=>btn.onclick=()=>{ if(confirm('Xóa máy cho thuê?')){ let id=parseInt(btn.dataset.id); rentItems=rentItems.filter(i=>i.id!==id); saveRentals(); renderRentalList(); } });
+    }
+    function addRentItem() { let name=document.getElementById('rentName').value.trim(), price=parseInt(document.getElementById('rentPrice').value), stock=parseInt(document.getElementById('rentStock').value), imageUrl=document.getElementById('rentImage').value.trim(), editId=document.getElementById('editRentId').value; if(!name||isNaN(price)||isNaN(stock)){ alert('Đủ thông tin'); return; } const file=document.getElementById('rentImageFile').files[0]; if(file){ const reader=new FileReader(); reader.onload=e=>performRentSave(name,price,stock,e.target.result,editId); reader.readAsDataURL(file); } else performRentSave(name,price,stock,imageUrl,editId); }
+    function performRentSave(name,price,stock,imageUrl,editId){ if(editId){ let idx=rentItems.findIndex(i=>i.id==editId); if(idx!==-1) rentItems[idx]={...rentItems[idx],name,pricePerDay:price,stock,imageUrl}; } else{ let newId=rentItems.length?Math.max(...rentItems.map(i=>i.id))+1:4; rentItems.push({id:newId,name,pricePerDay:price,stock,imageUrl}); } saveRentals(); renderRentalList(); document.getElementById('rentName').value=''; document.getElementById('rentPrice').value=''; document.getElementById('rentStock').value=''; document.getElementById('rentImage').value=''; document.getElementById('rentImageFile').value=''; document.getElementById('editRentId').value=''; alert('Đã lưu máy cho thuê'); }
+
+    function escapeHtml(str) { return str.replace(/[&<>]/g, m=> m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
+
+    // Navigation
+    document.querySelectorAll('.sidebar nav a').forEach(link=>{ link.addEventListener('click',e=>{ e.preventDefault(); let sec=link.dataset.section; document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById(`section-${sec}`).classList.add('active'); document.querySelectorAll('.sidebar nav a').forEach(a=>a.classList.remove('active')); link.classList.add('active'); }); });
+    document.querySelector('.sidebar nav a').classList.add('active');
+
+    document.getElementById('saveGeneralBtn')?.addEventListener('click', saveGeneral);
+    document.getElementById('saveColorBtn')?.addEventListener('click', saveColor);
+    document.getElementById('resetColorBtn')?.addEventListener('click', resetColor);
+    document.getElementById('saveAdminColorBtn')?.addEventListener('click', saveAdminColor);
+    document.getElementById('saveFontBtn')?.addEventListener('click', saveFont);
+    document.getElementById('savePaymentBtn')?.addEventListener('click', savePayment);
+    document.getElementById('updateBannerBtn')?.addEventListener('click', updateBanner);
+    document.getElementById('addCatBtn')?.addEventListener('click', addCategory);
+    document.getElementById('addOrUpdateBtn')?.addEventListener('click', addOrUpdateProduct);
+    document.getElementById('addRentBtn')?.addEventListener('click', addRentItem);
+    document.getElementById('logoutBtn')?.addEventListener('click', ()=>{ sessionStorage.removeItem('admin_auth'); checkAuth(); });
+    document.getElementById('doLogin')?.addEventListener('click', ()=>{ if(document.getElementById('username').value==='admin' && document.getElementById('password').value==='admin123'){ sessionStorage.setItem('admin_auth','true'); checkAuth(); } else alert('Sai tài khoản (admin/admin123)'); });
+    document.getElementById('logoUpload')?.addEventListener('change', e=>{ if(e.target.files[0]){ let reader=new FileReader(); reader.onload=ev=>{ document.getElementById('logoPreview').src=ev.target.result; document.getElementById('logoPreview').style.display='block'; document.getElementById('logoUrlInput').value=''; }; reader.readAsDataURL(e.target.files[0]); } });
+    checkAuth();
+</script>
+</body>
+</html>
