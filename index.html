@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title id="dynamicTitle">FilmStore Cartoon</title>
-    <!-- Google Fonts hỗ trợ tiếng Việt tốt -->
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Nunito:wght@400;600;700&family=Fredoka+One&family=Comic+Neue:wght@400;700&family=Open+Sans:wght@400;600;700&family=Noto+Sans:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style id="dynamicStyles">
+    <style>
         :root {
             --bg-body: #fff9ef;
             --header-bg: #ffe5b4;
@@ -66,6 +65,22 @@
             color: var(--header-text);
             text-shadow: 3px 3px 0 #ffd966;
         }
+        /* Thông báo cố định (không nút đóng) */
+        .notification-banner {
+            max-width: 1400px;
+            margin: 0 auto 20px auto;
+            background: var(--notification-bg, #ffefc0);
+            border: 3px solid var(--border-dark);
+            border-radius: 60px;
+            padding: 12px 20px;
+            text-align: center;
+            box-shadow: 6px 6px 0 var(--border-dark);
+        }
+        .notification-text {
+            font-weight: bold;
+            font-size: 1rem;
+            white-space: pre-line;
+        }
         .banner-wrapper { width: 100%; margin-bottom: 30px; }
         .main-banner {
             width: 100%; border-radius: 48px; border: 4px solid var(--border-dark);
@@ -77,7 +92,14 @@
         .search-bar { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
         .search-bar input { flex: 1; padding: 14px 24px; border-radius: 60px; border: 2px solid var(--border-dark); background: white; font-family: var(--main-font); box-shadow: 5px 5px 0 #c0aa7a; }
         .search-bar button { background: var(--primary-btn); padding: 12px 30px; border-radius: 60px; font-weight: bold; font-family: var(--button-font); font-size: var(--button-font-size); cursor: pointer; }
-        .action-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 35px; }
+        .action-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
         .categories-bar { display: flex; gap: 15px; flex-wrap: wrap; }
         .cat-btn {
             background: #ffeaac;
@@ -89,6 +111,30 @@
             cursor: pointer;
         }
         .cat-btn.active { background: var(--primary-btn); color: #2b2b1a; }
+        .support-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .support-links a {
+            background: white;
+            padding: 8px 18px;
+            border-radius: 50px;
+            border: 2px solid var(--border-dark);
+            box-shadow: 3px 3px 0 var(--border-dark);
+            color: #2d2b1f;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.1s;
+        }
+        .support-links a:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0 var(--border-dark);
+        }
         .rent-btn {
             background: #4a7c59; color: white; padding: 10px 28px; border-radius: 50px;
             font-weight: bold; font-family: var(--button-font); font-size: var(--button-font-size);
@@ -185,21 +231,76 @@
             background: var(--primary-btn); padding: 8px; border-radius: 40px;
             font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px;
         }
-        .payment-buttons { display: flex; gap: 1rem; justify-content: center; margin: 1rem 0; }
-        .payment-btn {
-            background: var(--primary-btn); padding: 10px 24px; border-radius: 60px;
-            font-weight: bold; font-family: var(--button-font); font-size: var(--button-font-size);
-            cursor: pointer; border: 2px solid var(--border-dark); box-shadow: 3px 3px 0 var(--border-dark);
+        .payment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
         }
-        .close-rent-modal, .close-modal {
-            background: #c0a57a; margin-top: 1rem; padding: 8px 20px;
-            border-radius: 40px; cursor: pointer; border: none;
+        .payment-form input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 60px;
+            border: 2px solid var(--border-dark);
+            font-family: var(--main-font);
         }
+        .confirm-order-btn {
+            background: #3b9b3b;
+            color: white;
+            padding: 12px;
+            border-radius: 60px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            border: none;
+        }
+        .close-modal {
+            background: #c0a57a;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            border: 2px solid var(--border-dark);
+            font-weight: bold;
+            margin-top: 1rem;
+            transition: 0.1s;
+        }
+        .close-modal:hover {
+            background: #a88b60;
+            transform: scale(0.98);
+        }
+        /* Responsive cho điện thoại */
         @media (max-width: 880px) {
-            .shop-layout { flex-direction: column; }
+            body { padding: 0.5rem; }
+            .container { padding: 0 12px; }
+            .logo-area { padding: 4px 16px; }
+            .shop-name-text { font-size: 1.2rem; }
+            .logo-img { height: 35px; }
+            .notification-banner { padding: 8px 12px; }
+            .notification-text { font-size: 0.85rem; }
+            .search-bar input { padding: 10px 16px; }
+            .search-bar button { padding: 10px 20px; }
+            .cat-btn { padding: 6px 16px; font-size: 0.85rem; }
+            .support-links a { padding: 6px 14px; font-size: 0.85rem; }
+            .rent-btn { padding: 6px 16px; font-size: 0.85rem; }
+            .shop-layout { flex-direction: column; gap: 20px; }
             .cart-panel { position: static; }
+            .product-name { font-size: 1rem; }
+            .product-price { font-size: 1.1rem; }
+            .product-card { border-radius: 25px; }
+            .cart-panel h3 { font-size: 1.3rem; }
+            .cart-item { padding: 8px; }
+            .cart-item-img { width: 45px; height: 45px; }
+            .cart-total { font-size: 1rem; }
+            .cart-actions button { padding: 10px 0; font-size: 0.85rem; }
+            .rent-modal-content, .payment-modal-content, .rent-payment-content { padding: 1.2rem; width: 95%; }
+            .payment-form input { padding: 8px 12px; }
+            .confirm-order-btn { padding: 10px; }
+        }
+        @media (max-width: 480px) {
             .action-row { flex-direction: column; align-items: stretch; }
+            .support-links { justify-content: space-between; }
             .rent-btn { justify-content: center; }
+            .products-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -213,6 +314,13 @@
         </div>
     </div>
 </header>
+
+<!-- Thông báo cố định (nội dung và màu nền do admin cấu hình) -->
+<div class="container">
+    <div id="notificationBanner" class="notification-banner">
+        <div id="notificationText" class="notification-text">🎉 Chào mừng bạn đến với FilmStore! 🎉<br>🎞️ Cửa hàng phim và máy ảnh chất lượng. Giao hàng toàn quốc.</div>
+    </div>
+</div>
 
 <div class="banner-wrapper">
     <div class="container">
@@ -228,7 +336,11 @@
 
     <div class="action-row">
         <div class="categories-bar" id="categoriesBar"></div>
-        <button id="openRentModalBtn" class="rent-btn"><i class="fas fa-camera"></i> <span id="rentButtonText">📸 Thuê máy ảnh</span></button>
+        <div class="support-links">
+            <a href="#" id="supportFacebookBtn" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>
+            <a href="#" id="supportInstagramBtn" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
+            <button id="openRentModalBtn" class="rent-btn"><i class="fas fa-camera"></i> <span id="rentButtonText">📸 Thuê máy ảnh</span></button>
+        </div>
     </div>
 
     <div class="shop-layout">
@@ -251,26 +363,29 @@
 
 <footer class="footer" id="footerText"></footer>
 
-<!-- Modal thuê máy -->
+<!-- Modal danh sách thuê máy -->
 <div id="rentModal" class="rent-modal">
     <div class="rent-modal-content">
         <h2><i class="fas fa-camera-retro"></i> Thuê máy ảnh</h2>
         <p>Chọn máy và số ngày thuê:</p>
         <div id="rentItemsList" class="rent-items-grid"></div>
-        <button id="closeRentModal" class="close-rent-modal">Đóng</button>
+        <button id="closeRentModal" class="close-modal">Đóng</button>
     </div>
 </div>
 
 <!-- Modal thanh toán thuê máy -->
 <div id="rentPaymentModal" class="rent-payment-modal">
     <div class="rent-payment-content">
-        <h2>🧾 Xác nhận thuê máy</h2>
+        <h2>🧾 Thông tin thuê máy</h2>
         <div id="rentPaymentImageContainer" style="text-align:center;"></div>
         <div id="rentPaymentInfo"></div>
-        <div class="payment-buttons">
-            <div id="rentFacebookLink" class="payment-btn">Facebook</div>
-            <div id="rentInstagramLink" class="payment-btn">Instagram</div>
-        </div>
+        <form id="rentPaymentInfoForm" class="payment-form">
+            <input type="text" id="rentFullName" placeholder="Họ tên *" required>
+            <input type="tel" id="rentPhone" placeholder="Số điện thoại *" required>
+            <input type="text" id="rentAddress" placeholder="Địa chỉ *" required>
+            <input type="url" id="rentSocialLink" placeholder="Link Facebook hoặc Instagram (tùy chọn)">
+            <button type="button" id="confirmRentOrderBtn" class="confirm-order-btn">✅ Xác nhận thuê</button>
+        </form>
         <button id="closeRentPaymentModal" class="close-modal">Đóng</button>
     </div>
 </div>
@@ -278,19 +393,22 @@
 <!-- Modal thanh toán giỏ hàng -->
 <div id="paymentModal" class="payment-modal">
     <div class="payment-modal-content">
-        <h2>🧾 Thanh toán giỏ hàng</h2>
+        <h2>🧾 Thông tin nhận hàng</h2>
         <div id="cartPaymentImageContainer" style="text-align:center;"></div>
-        <div id="paymentTextContent">Chọn kênh để hoàn tất đơn hàng:</div>
-        <div class="payment-buttons">
-            <div id="facebookLink" class="payment-btn">Facebook</div>
-            <div id="instagramLink" class="payment-btn">Instagram</div>
-        </div>
-        <button class="close-modal" id="closeModalBtn">Đóng</button>
+        <div id="paymentTextContent"></div>
+        <form id="paymentInfoForm" class="payment-form">
+            <input type="text" id="fullName" placeholder="Họ tên *" required>
+            <input type="tel" id="phone" placeholder="Số điện thoại *" required>
+            <input type="text" id="address" placeholder="Địa chỉ *" required>
+            <input type="url" id="socialLink" placeholder="Link Facebook hoặc Instagram (tùy chọn)">
+            <button type="button" id="confirmOrderBtn" class="confirm-order-btn">✅ Xác nhận đặt hàng</button>
+        </form>
+        <button id="closeModalBtn" class="close-modal">Đóng</button>
     </div>
 </div>
 
 <script>
-    // Khởi tạo cấu hình font từ localStorage
+    // ==================== ÁP DỤNG FONT CHỮ TỪ CONFIG ====================
     (function applyAllFonts() {
         try {
             const stored = localStorage.getItem('site_config');
@@ -318,20 +436,25 @@
         } catch(e) { console.warn(e); }
     })();
 
+    // ==================== BIẾN TOÀN CỤC ====================
     let config = {}, categories = [], products = [], cart = [], rentItems = [];
     let currentCategoryId = 'all', searchKeyword = '';
     let pendingRental = null;
 
+    // ==================== CẤU HÌNH & GIAO DIỆN ====================
     function loadConfig() {
         const stored = localStorage.getItem('site_config');
         if (stored) config = JSON.parse(stored);
         else {
             config = { 
                 shopName: "FilmStore Cartoon", logoUrl: "", mainBannerUrl: "",
-                facebookCheckout: "", instagramCheckout: "", paymentText: "Chọn kênh để hoàn tất đơn hàng:",
+                facebookCheckout: "", instagramCheckout: "", paymentText: "Vui lòng nhập thông tin giao hàng:",
                 footerText: "© 2025 FilmStore Cartoon - Cửa hàng phim & máy ảnh chất lượng",
                 rentButtonLabel: "📸 Thuê máy ảnh",
                 paymentImageCart: "", paymentImageRent: "",
+                supportFacebook: "", supportInstagram: "",
+                notificationText: "🎉 Chào mừng bạn đến với FilmStore! 🎉\n🎞️ Cửa hàng phim và máy ảnh chất lượng. Giao hàng toàn quốc.",
+                notificationBg: "#ffefc0",
                 theme: { bgBody: "#fff9ef", headerBg: "#ffe5b4", headerText: "#d43f1f", primaryBtn: "#f0bc6e", borderDark: "#1f1a12", cartBg: "#fff1df", footerBg: "#2d2b1f", footerText: "#ffecb3" },
                 fontConfig: {
                     mainFont: "'Quicksand', sans-serif", headerFont: "'Fredoka One', cursive", categoryFont: "'Quicksand', sans-serif",
@@ -345,26 +468,32 @@
         }
         applyTheme();
         applyConfig();
-        document.getElementById('paymentTextContent').innerText = config.paymentText || "Chọn kênh thanh toán:";
+        document.getElementById('paymentTextContent').innerText = config.paymentText || "Vui lòng nhập thông tin giao hàng:";
         document.getElementById('footerText').innerText = config.footerText || "";
         const rentBtnSpan = document.getElementById('rentButtonText');
         if (rentBtnSpan) rentBtnSpan.innerText = config.rentButtonLabel || "📸 Thuê máy ảnh";
         
-        // Hiển thị ảnh thanh toán
+        // Cập nhật ảnh thanh toán
         const cartImageContainer = document.getElementById('cartPaymentImageContainer');
         const rentImageContainer = document.getElementById('rentPaymentImageContainer');
         if (config.paymentImageCart && config.paymentImageCart.trim() !== "") {
-            cartImageContainer.innerHTML = `<img src="${config.paymentImageCart}" class="payment-image" alt="Hướng dẫn thanh toán" onerror="this.onerror=null; this.style.display='none';">`;
+            cartImageContainer.innerHTML = `<img src="${config.paymentImageCart}" class="payment-image" alt="Hướng dẫn" onerror="this.onerror=null; this.style.display='none';">`;
         } else cartImageContainer.innerHTML = '';
         if (config.paymentImageRent && config.paymentImageRent.trim() !== "") {
-            rentImageContainer.innerHTML = `<img src="${config.paymentImageRent}" class="payment-image" alt="Hướng dẫn thanh toán thuê máy" onerror="this.onerror=null; this.style.display='none';">`;
+            rentImageContainer.innerHTML = `<img src="${config.paymentImageRent}" class="payment-image" alt="Hướng dẫn thuê" onerror="this.onerror=null; this.style.display='none';">`;
         } else rentImageContainer.innerHTML = '';
         
-        // Gán sự kiện mở tab mới
-        document.getElementById('facebookLink').onclick = () => processPayment(config.facebookCheckout || 'https://facebook.com');
-        document.getElementById('instagramLink').onclick = () => processPayment(config.instagramCheckout || 'https://instagram.com');
-        document.getElementById('rentFacebookLink').onclick = () => processRentPayment(config.facebookCheckout || 'https://facebook.com');
-        document.getElementById('rentInstagramLink').onclick = () => processRentPayment(config.instagramCheckout || 'https://instagram.com');
+        // Cập nhật thông báo
+        const notifDiv = document.getElementById('notificationText');
+        if (notifDiv) notifDiv.innerText = config.notificationText || "🎉 Chào mừng bạn đến với FilmStore! 🎉\n🎞️ Cửa hàng phim và máy ảnh chất lượng. Giao hàng toàn quốc.";
+        const notifBanner = document.getElementById('notificationBanner');
+        if (notifBanner) notifBanner.style.setProperty('--notification-bg', config.notificationBg || "#ffefc0");
+        
+        // Cập nhật link hỗ trợ Facebook/Instagram
+        const supportFb = document.getElementById('supportFacebookBtn');
+        const supportIg = document.getElementById('supportInstagramBtn');
+        if (supportFb) supportFb.href = config.supportFacebook || '#';
+        if (supportIg) supportIg.href = config.supportInstagram || '#';
     }
 
     function applyTheme() {
@@ -390,17 +519,11 @@
             logoImg.style.display = "block";
         } else logoImg.style.display = "none";
         
-        // Xử lý banner bằng JavaScript để tránh lỗi onerror
         const bannerDiv = document.getElementById('mainBanner');
         if (config.mainBannerUrl && config.mainBannerUrl.trim() !== "") {
             const img = new Image();
-            img.onload = function() {
-                bannerDiv.innerHTML = '';
-                bannerDiv.appendChild(img);
-            };
-            img.onerror = function() {
-                bannerDiv.innerHTML = '<div class="banner-placeholder">📸 Không tải được ảnh banner</div>';
-            };
+            img.onload = function() { bannerDiv.innerHTML = ''; bannerDiv.appendChild(img); };
+            img.onerror = function() { bannerDiv.innerHTML = '<div class="banner-placeholder">📸 Không tải được ảnh banner</div>'; };
             img.src = config.mainBannerUrl;
             img.style.width = '100%';
             img.style.height = 'auto';
@@ -412,7 +535,82 @@
         }
     }
 
-    // Rental
+    // ==================== LƯU ĐƠN HÀNG ====================
+    function saveOrder(orderData) {
+        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        orderData.id = Date.now();
+        orderData.createdAt = new Date().toISOString();
+        orderData.status = 'Chờ duyệt';
+        orders.unshift(orderData);
+        localStorage.setItem('orders', JSON.stringify(orders));
+    }
+
+    // ==================== XỬ LÝ THANH TOÁN GIỎ HÀNG ====================
+    function processCartOrder(customerInfo, redirectUrl) {
+        if (cart.length === 0) { alert('Giỏ hàng trống!'); return false; }
+        for (let item of cart) {
+            const prod = products.find(p => p.id === item.id);
+            if (!prod || prod.stock < item.quantity) {
+                alert(`Sản phẩm "${item.name}" không đủ số lượng!`);
+                return false;
+            }
+        }
+        for (let item of cart) {
+            const prod = products.find(p => p.id === item.id);
+            if (prod) prod.stock -= item.quantity;
+        }
+        saveProducts();
+        const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+        const order = {
+            type: 'mua_hang',
+            customer: customerInfo,
+            items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity })),
+            total: total,
+            redirectUrl: redirectUrl
+        };
+        saveOrder(order);
+        cart = [];
+        saveCart();
+        renderCart();
+        renderProducts();
+        document.getElementById('paymentModal').style.display = 'none';
+        if (redirectUrl && redirectUrl !== 'https://facebook.com' && redirectUrl !== 'https://instagram.com') {
+            window.open(redirectUrl, '_blank');
+        }
+        alert('Đặt hàng thành công! Cảm ơn bạn. Admin sẽ liên hệ sớm.');
+        return true;
+    }
+
+    // ==================== XỬ LÝ THANH TOÁN THUÊ MÁY ====================
+    function processRentOrder(customerInfo, redirectUrl) {
+        if (!pendingRental) return false;
+        const { item, days, totalPrice } = pendingRental;
+        const currentItem = rentItems.find(i => i.id === item.id);
+        if (!currentItem || currentItem.stock < 1) {
+            alert('Máy này đã hết, vui lòng chọn máy khác!');
+            return false;
+        }
+        currentItem.stock--;
+        saveRentItems();
+        const order = {
+            type: 'thue_may',
+            customer: customerInfo,
+            rental: { name: item.name, pricePerDay: item.pricePerDay, days: days, total: totalPrice },
+            total: totalPrice,
+            redirectUrl: redirectUrl
+        };
+        saveOrder(order);
+        document.getElementById('rentPaymentModal').style.display = 'none';
+        if (redirectUrl && redirectUrl !== 'https://facebook.com' && redirectUrl !== 'https://instagram.com') {
+            window.open(redirectUrl, '_blank');
+        }
+        alert('Đặt thuê thành công! Cảm ơn bạn. Admin sẽ liên hệ sớm.');
+        pendingRental = null;
+        if (document.getElementById('rentModal').style.display === 'flex') showRentModal();
+        return true;
+    }
+
+    // ==================== RENTAL ITEMS ====================
     function loadRentItems() {
         const stored = localStorage.getItem('rental_items');
         if (stored) rentItems = JSON.parse(stored);
@@ -462,29 +660,8 @@
         });
         document.getElementById('rentModal').style.display = 'flex';
     }
-    
-    function processRentPayment(redirectUrl) {
-        if (!pendingRental) return;
-        const { item, days, totalPrice } = pendingRental;
-        const currentItem = rentItems.find(i => i.id === item.id);
-        if (!currentItem || currentItem.stock < 1) {
-            alert('Máy này đã hết, vui lòng chọn máy khác!');
-            document.getElementById('rentPaymentModal').style.display = 'none';
-            pendingRental = null;
-            return;
-        }
-        // Giảm stock
-        currentItem.stock--;
-        saveRentItems();
-        document.getElementById('rentPaymentModal').style.display = 'none';
-        alert(`Đã đặt thuê ${item.name} thành công! Tổng tiền: ${totalPrice.toLocaleString('vi-VN')}₫.\nChúng tôi sẽ liên hệ sớm.`);
-        pendingRental = null;
-        if (document.getElementById('rentModal').style.display === 'flex') showRentModal();
-        // Mở link trong tab mới
-        window.open(redirectUrl, '_blank');
-    }
 
-    // Categories
+    // ==================== CATEGORIES ====================
     function loadCategories() {
         const stored = localStorage.getItem('site_categories');
         if (stored) categories = JSON.parse(stored);
@@ -508,7 +685,7 @@
         });
     }
 
-    // Products
+    // ==================== PRODUCTS ====================
     function loadProducts() {
         const stored = localStorage.getItem('filmstore_products');
         if (stored) products = JSON.parse(stored);
@@ -557,7 +734,7 @@
         });
     }
 
-    // Cart
+    // ==================== CART ====================
     function addToCart(id) {
         const prod = products.find(p=>p.id===id);
         if(!prod) return;
@@ -619,27 +796,12 @@
         });
     }
 
-    function processPayment(redirectUrl) {
-        if (cart.length === 0) { alert('Giỏ hàng trống!'); return; }
-        for (let item of cart) {
-            const prod = products.find(p => p.id === item.id);
-            if (!prod || prod.stock < item.quantity) { alert(`Sản phẩm "${item.name}" không đủ số lượng!`); return; }
-        }
-        for (let item of cart) {
-            const prod = products.find(p => p.id === item.id);
-            if (prod) prod.stock -= item.quantity;
-        }
-        saveProducts();
-        cart = []; saveCart(); renderCart(); renderProducts();
-        document.getElementById('paymentModal').style.display = 'none';
-        // Mở link trong tab mới
-        window.open(redirectUrl, '_blank');
-    }
-
+    // ==================== TÌM KIẾM ====================
     function performSearch() { searchKeyword = document.getElementById('searchInput').value; renderProducts(); }
     document.getElementById('searchBtn')?.addEventListener('click', performSearch);
     document.getElementById('searchInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
 
+    // ==================== CÁC SỰ KIỆN MODAL ====================
     document.getElementById('openRentModalBtn')?.addEventListener('click', showRentModal);
     document.getElementById('closeRentModal')?.addEventListener('click', () => document.getElementById('rentModal').style.display = 'none');
     document.getElementById('closeRentPaymentModal')?.addEventListener('click', () => {
@@ -658,8 +820,39 @@
     });
     document.getElementById('clearCartBtn')?.addEventListener('click', () => { if (cart.length && confirm('Xóa hết giỏ hàng?')) { cart = []; saveCart(); renderCart(); } });
 
+    // ==================== XÁC NHẬN ĐƠN HÀNG ====================
+    document.getElementById('confirmOrderBtn')?.addEventListener('click', () => {
+        const fullName = document.getElementById('fullName').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const address = document.getElementById('address').value.trim();
+        if (!fullName || !phone || !address) {
+            alert('Vui lòng nhập đầy đủ họ tên, số điện thoại và địa chỉ.');
+            return;
+        }
+        const socialLink = document.getElementById('socialLink').value.trim();
+        const customerInfo = { fullName, phone, address, socialLink };
+        const redirectUrl = config.facebookCheckout || config.instagramCheckout || '';
+        processCartOrder(customerInfo, redirectUrl);
+    });
+    document.getElementById('confirmRentOrderBtn')?.addEventListener('click', () => {
+        if (!pendingRental) return;
+        const fullName = document.getElementById('rentFullName').value.trim();
+        const phone = document.getElementById('rentPhone').value.trim();
+        const address = document.getElementById('rentAddress').value.trim();
+        if (!fullName || !phone || !address) {
+            alert('Vui lòng nhập đầy đủ họ tên, số điện thoại và địa chỉ.');
+            return;
+        }
+        const socialLink = document.getElementById('rentSocialLink').value.trim();
+        const customerInfo = { fullName, phone, address, socialLink };
+        const redirectUrl = config.facebookCheckout || config.instagramCheckout || '';
+        processRentOrder(customerInfo, redirectUrl);
+    });
+
+    // ==================== ESCAPE HTML ====================
     function escapeHtml(str) { return str.replace(/[&<>]/g, m=> m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
 
+    // ==================== KHỞI TẠO ====================
     loadConfig();
     loadCategories();
     loadProducts();
