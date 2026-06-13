@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title id="adminTitle">Quản trị - FilmStore Pro</title>
+    <title id="adminTitle">Quản trị - Banhsungboo Pro</title>
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600&family=Poppins:wght@400;600&family=Roboto:wght@400;500;700&family=Nunito:wght@400;600;700&family=Open+Sans:wght@400;600&family=Noto+Sans:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;600&family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&family=Montserrat:wght@400;500;600&family=Source+Sans+3:wght@400;600&family=Playfair+Display:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
@@ -89,6 +90,43 @@
         .payment-image-preview { max-width: 200px; max-height: 300px; border-radius: 20px; margin-top: 8px; border: 2px solid #9b7a4a; }
         .grid-2cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         hr { margin: 1rem 0; border: 1px dashed #c0aa7a; }
+        /* Thống kê */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 40px;
+            border: 2px solid var(--border-dark);
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 6px 6px 0 var(--border-dark);
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #c45200;
+        }
+        .progress-bar-container {
+            background: #e0d6c5;
+            border-radius: 30px;
+            height: 24px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .progress-bar {
+            background: #4a7c59;
+            height: 100%;
+            width: 0%;
+            border-radius: 30px;
+            color: white;
+            line-height: 24px;
+            padding-left: 10px;
+            font-size: 0.8rem;
+        }
         @media (max-width: 880px) {
             body { flex-direction: column; }
             .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 0.8rem 1rem; border-right: none; border-bottom: 4px solid var(--admin-border); gap: 10px; }
@@ -106,6 +144,7 @@
             .product-item, .cat-item, .rental-item, .order-item { flex-direction: column; align-items: flex-start; }
             button { margin-top: 10px; width: 100%; }
             .product-item button, .cat-item button, .rental-item button { width: auto; margin: 5px 5px 0 0; }
+            .stats-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -122,7 +161,7 @@
 <div id="adminApp" style="display: flex; width: 100%;">
     <div class="sidebar">
         <div>
-            <h2 id="sidebarTitle">FilmStore Admin</h2>
+            <h2 id="sidebarTitle">Banhsungboo Admin</h2>
             <nav>
                 <a href="#" data-section="general"><i class="fas fa-home"></i> Tổng quan</a>
                 <a href="#" data-section="color"><i class="fas fa-palette"></i> Màu sắc web</a>
@@ -139,6 +178,7 @@
                     <i class="fas fa-truck"></i> Đơn hàng
                     <span id="orderNotificationBadge" class="notification-badge" style="display: none;">0</span>
                 </a>
+                <a href="#" data-section="stats"><i class="fas fa-chart-line"></i> 📊 Thống kê bán hàng</a>
             </nav>
         </div>
         <div class="sidebar-footer">
@@ -151,7 +191,7 @@
     </div>
     <div class="main-content">
         <div class="admin-panel">
-            <!-- GENERAL -->
+            <!-- GENERAL (có thêm trường title) -->
             <div id="section-general" class="section active">
                 <h2>📌 Cấu hình chung</h2>
                 <div class="form-group"><label>Tên shop (trên logo)</label><input type="text" id="shopNameInput"></div>
@@ -299,11 +339,18 @@
                 <h2>📦 Quản lý đơn hàng</h2>
                 <div id="ordersList" class="orders-list"></div>
             </div>
+
+            <!-- THỐNG KÊ BÁN HÀNG -->
+            <div id="section-stats" class="section">
+                <h2>📊 Thống kê bán hàng</h2>
+                <div id="statsContainer"></div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
+    // Firebase config
     const firebaseConfig = {
         apiKey: "AIzaSyCdJVcEq5GCBi3nxi52KmHx9XoJz9U-GSw",
         authDomain: "banhsungboo.firebaseapp.com",
@@ -349,21 +396,21 @@
         const configSnap = await db.ref('config').once('value');
         if (!configSnap.exists()) {
             await db.ref('config').set({
-                shopName: "FilmStore Cartoon",
-                siteTitle: "FilmStore Cartoon",
-                adminTitle: "Quản trị - FilmStore Pro",
+                shopName: "Banhsungboo Cartoon",
+                siteTitle: "Banhsungboo Cartoon",
+                adminTitle: "Quản trị - Banhsungboo Pro",
                 logoUrl: "",
                 mainBannerUrl: "",
                 facebookCheckout: "",
                 instagramCheckout: "",
                 paymentText: "Vui lòng nhập thông tin giao hàng:",
-                footerText: "© 2025 FilmStore Cartoon",
+                footerText: "© 2025 Banhsungboo Cartoon",
                 rentButtonLabel: "📸 Thuê máy ảnh",
                 paymentImageCart: "",
                 paymentImageRent: "",
                 supportFacebook: "",
                 supportInstagram: "",
-                notificationText: "🎉 Chào mừng bạn đến với FilmStore! 🎉\n🎞️ Cửa hàng phim và máy ảnh chất lượng.",
+                notificationText: "🎉 Chào mừng bạn đến với Banhsungboo! 🎉\n🎞️ Cửa hàng phim và máy ảnh chất lượng.",
                 notificationBg: "#ffefc0",
                 adminPassword: "admin123",
                 adminUsername: "admin",
@@ -421,6 +468,89 @@
         orders.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
         renderOrders();
         updateOrderBadge();
+        renderStatistics(); // cập nhật thống kê mỗi khi load đơn hàng
+    }
+
+    // ==================== THỐNG KÊ BÁN HÀNG ====================
+    function renderStatistics() {
+        const container = document.getElementById('statsContainer');
+        if (!container) return;
+
+        // Tính toán số liệu
+        let totalOrders = 0;
+        let totalRevenue = 0;
+        let productSales = {}; // { productId: { name, categoryId, quantity, revenue } }
+        
+        orders.forEach(order => {
+            if (order.type === 'mua_hang' && order.status === 'Đã duyệt') {
+                totalOrders++;
+                order.items.forEach(item => {
+                    const prodId = item.id;
+                    const prod = products.find(p => p.id == prodId);
+                    const prodName = prod ? prod.name : item.name;
+                    const catId = prod ? prod.categoryId : 0;
+                    if (!productSales[prodId]) {
+                        productSales[prodId] = {
+                            id: prodId,
+                            name: prodName,
+                            categoryId: catId,
+                            quantity: 0,
+                            revenue: 0
+                        };
+                    }
+                    productSales[prodId].quantity += item.quantity;
+                    productSales[prodId].revenue += item.price * item.quantity;
+                    totalRevenue += item.price * item.quantity;
+                });
+            }
+        });
+
+        // Tìm sản phẩm bán chạy nhất để làm tỷ lệ thanh
+        let maxQuantity = 0;
+        Object.values(productSales).forEach(p => { if (p.quantity > maxQuantity) maxQuantity = p.quantity; });
+
+        // Hiển thị các thẻ tổng quan
+        const statsHtml = `
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div><i class="fas fa-shopping-cart"></i> Tổng đơn hàng</div>
+                    <div class="stat-number">${totalOrders}</div>
+                </div>
+                <div class="stat-card">
+                    <div><i class="fas fa-dollar-sign"></i> Doanh thu</div>
+                    <div class="stat-number">${totalRevenue.toLocaleString('vi-VN')}₫</div>
+                </div>
+                <div class="stat-card">
+                    <div><i class="fas fa-box"></i> Sản phẩm đã bán</div>
+                    <div class="stat-number">${Object.values(productSales).reduce((sum, p) => sum + p.quantity, 0)}</div>
+                </div>
+            </div>
+            <h3>Chi tiết theo sản phẩm</h3>
+            <div style="overflow-x: auto;">
+                <table style="width:100%; border-collapse: collapse;">
+                    <thead>
+                        <tr><th style="text-align:left; padding:8px;">Sản phẩm</th><th style="text-align:left; padding:8px;">Danh mục</th><th style="text-align:center; padding:8px;">Đã bán</th><th style="text-align:right; padding:8px;">Doanh thu</th></tr>
+                    </thead>
+                    <tbody>
+                        ${Object.values(productSales).map(p => {
+                            const percent = maxQuantity > 0 ? (p.quantity / maxQuantity) * 100 : 0;
+                            const catName = categories.find(c => c.id == p.categoryId)?.name || 'Khác';
+                            return `<tr style="border-bottom:1px solid #e0d6c5;">
+                                <td style="padding:8px;">${escapeHtml(p.name)}</td>
+                                <td style="padding:8px;">${escapeHtml(catName)}</td>
+                                <td style="padding:8px; text-align:center;">
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar" style="width: ${percent}%;">${p.quantity}</div>
+                                    </div>
+                                </td>
+                                <td style="padding:8px; text-align:right;">${p.revenue.toLocaleString('vi-VN')}₫</td>
+                            </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        container.innerHTML = statsHtml;
     }
 
     // ==================== FILL FORMS ====================
@@ -975,7 +1105,7 @@
         if (title && config.shopName) title.innerText = config.shopName;
     }
     function updateAdminTitle() {
-        document.title = config.adminTitle || "Quản trị - FilmStore Pro";
+        document.title = config.adminTitle || "Quản trị - Banhsungboo Pro";
     }
     function updateSocialLinks() {
         const fb = document.getElementById('adminFbLink');
@@ -1028,6 +1158,7 @@
         await loadOrders();
         showBannerPreview();
         showPaymentImagePreviews();
+        renderStatistics();
     }
 
     // ==================== FONT LIST ====================
@@ -1063,7 +1194,7 @@
         });
     }
 
-    // ==================== CHUYỂN TAB & KHỞI TẠO ====================
+    // ==================== CHUYỂN TAB ====================
     document.querySelectorAll('.sidebar nav a').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1074,11 +1205,12 @@
             document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
             link.classList.add('active');
             if (sec === 'orders') loadOrders();
+            if (sec === 'stats') renderStatistics();
         });
     });
     document.querySelector('.sidebar nav a').classList.add('active');
 
-    // Event listeners
+    // ==================== EVENT LISTENERS ====================
     document.getElementById('doLogin')?.addEventListener('click', async () => {
         const username = document.getElementById('username').value;
         const pwd = document.getElementById('password').value;
@@ -1091,6 +1223,7 @@
         sessionStorage.removeItem('admin_auth');
         location.reload();
     });
+
     document.getElementById('saveGeneralBtn')?.addEventListener('click', saveGeneral);
     document.getElementById('saveColorBtn')?.addEventListener('click', saveColor);
     document.getElementById('resetColorBtn')?.addEventListener('click', resetColor);
