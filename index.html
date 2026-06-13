@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title id="dynamicTitle">FilmStore Cartoon</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Nunito:wght@400;600;700&family=Fredoka+One&family=Comic+Neue:wght@400;700&family=Open+Sans:wght@400;600;700&family=Noto+Sans:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* CSS giữ nguyên như các phiên bản trước, đảm bảo responsive và cartoon */
         :root {
             --bg-body: #fff9ef;
             --header-bg: #ffe5b4;
@@ -422,30 +424,80 @@
 </div>
 
 <script>
-    // ==================== CẤU HÌNH API ====================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzHT3I2yI_sUSf84D9-81kuYdnjpvpzlmBhOpdEM3YwqRg-70bm25sKMqCTl2eryLfbyQ/exec';
+    // ==================== FIREBASE CONFIG ====================
+    const firebaseConfig = {
+        apiKey: "AIzaSyCdJVcEq5GCBi3nxi52KmHx9XoJz9U-GSw",
+        authDomain: "banhsungboo.firebaseapp.com",
+        databaseURL: "https://banhsungboo-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "banhsungboo",
+        storageBucket: "banhsungboo.firebasestorage.app",
+        messagingSenderId: "983206724851",
+        appId: "1:983206724851:web:ae5a84fdc8c00eac426386",
+        measurementId: "G-2SD78JC9YE"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    // Helper gọi API
-    async function fetchSheetData(sheetName) {
-        try {
-            const res = await fetch(`${API_URL}?sheet=${sheetName}`);
-            return await res.json();
-        } catch (err) {
-            console.error(`Lỗi fetch ${sheetName}:`, err);
-            return [];
-        }
-    }
-    async function postToSheet(sheet, data, action = null) {
-        const payload = action ? { sheet, action, data } : { sheet, data };
-        try {
-            await fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+    // ==================== HÀM TẠO DỮ LIỆU MẪU NẾU CHƯA CÓ ====================
+    async function initializeDefaultData() {
+        // Kiểm tra và tạo categories
+        const catSnap = await db.ref('categories').once('value');
+        if (!catSnap.exists()) {
+            await db.ref('categories').set({
+                1: { id: 1, name: "📷 Phim máy ảnh" },
+                2: { id: 2, name: "📸 Máy ảnh" }
             });
-        } catch (err) {
-            console.error('Lỗi post:', err);
+        }
+        // Kiểm tra và tạo products
+        const prodSnap = await db.ref('products').once('value');
+        if (!prodSnap.exists()) {
+            await db.ref('products').set({
+                1: { id: 1, name: "Kodak Portra 400", price: 350000, imageUrl: "https://picsum.photos/id/20/200/150", categoryId: 1, stock: 10 },
+                2: { id: 2, name: "Fujifilm Superia 400", price: 280000, imageUrl: "https://picsum.photos/id/21/200/150", categoryId: 1, stock: 8 },
+                3: { id: 3, name: "Máy ảnh phim Canon AE-1", price: 4500000, imageUrl: "https://picsum.photos/id/1/200/150", categoryId: 2, stock: 3 }
+            });
+        }
+        // Kiểm tra và tạo rentals
+        const rentSnap = await db.ref('rentals').once('value');
+        if (!rentSnap.exists()) {
+            await db.ref('rentals').set({
+                1: { id: 1, name: "Canon EOS 5D Mark IV", pricePerDay: 450000, imageUrl: "https://picsum.photos/id/1/200/150", stock: 3 },
+                2: { id: 2, name: "Sony A7 III", pricePerDay: 400000, imageUrl: "https://picsum.photos/id/2/200/150", stock: 2 },
+                3: { id: 3, name: "Fujifilm X-T4", pricePerDay: 350000, imageUrl: "https://picsum.photos/id/3/200/150", stock: 4 }
+            });
+        }
+        // Kiểm tra và tạo config
+        const configSnap = await db.ref('config').once('value');
+        if (!configSnap.exists()) {
+            await db.ref('config').set({
+                shopName: "FilmStore Cartoon",
+                siteTitle: "FilmStore Cartoon",
+                logoUrl: "",
+                mainBannerUrl: "",
+                facebookCheckout: "",
+                instagramCheckout: "",
+                paymentText: "Vui lòng nhập thông tin giao hàng:",
+                footerText: "© 2025 FilmStore Cartoon - Cửa hàng phim & máy ảnh chất lượng",
+                rentButtonLabel: "📸 Thuê máy ảnh",
+                paymentImageCart: "",
+                paymentImageRent: "",
+                supportFacebook: "",
+                supportInstagram: "",
+                notificationText: "🎉 Chào mừng bạn đến với FilmStore! 🎉\n🎞️ Cửa hàng phim và máy ảnh chất lượng. Giao hàng toàn quốc.",
+                notificationBg: "#ffefc0",
+                theme: {
+                    bgBody: "#fff9ef", headerBg: "#ffe5b4", headerText: "#d43f1f",
+                    primaryBtn: "#f0bc6e", borderDark: "#1f1a12", cartBg: "#fff1df",
+                    footerBg: "#2d2b1f", footerText: "#ffecb3"
+                },
+                fontConfig: {
+                    mainFont: "'Quicksand', sans-serif", headerFont: "'Fredoka One', cursive", categoryFont: "'Quicksand', sans-serif",
+                    productNameFont: "'Quicksand', sans-serif", productPriceFont: "'Quicksand', sans-serif", cartTitleFont: "'Quicksand', sans-serif",
+                    buttonFont: "'Quicksand', sans-serif", footerFont: "'Quicksand', sans-serif",
+                    baseFontSize: 16, productNameSize: 20, productPriceSize: 22, cartTitleSize: 26, buttonFontSize: 16,
+                    categoryFontSize: 16, footerFontSize: 14, productWeight: 700
+                }
+            });
         }
     }
 
@@ -459,24 +511,59 @@
     let searchKeyword = '';
     let pendingRental = null;
 
-    // ==================== TẢI DỮ LIỆU TỪ SHEET ====================
-    async function loadAllData() {
-        // Load config (dạng key-value)
-        const configRows = await fetchSheetData('config');
-        config = {};
-        configRows.forEach(row => { config[row.key] = row.value; });
-        categories = await fetchSheetData('categories');
-        products = await fetchSheetData('products');
-        rentItems = await fetchSheetData('rentals');
-        // Đảm bảo mỗi object có id (nếu chưa có thì tự sinh – nhưng sheet đã có)
-        applyConfigUI();
-        renderCategories();
-        renderProducts();
-        renderRentItems();
-        loadCartFromLocal();
+    // ==================== HÀM ĐỌC FIREBASE ====================
+    async function loadFirebaseData() {
+        await initializeDefaultData();
+        
+        const configSnap = await db.ref('config').once('value');
+        config = configSnap.val() || {};
+        
+        const catSnap = await db.ref('categories').once('value');
+        categories = catSnap.exists() ? Object.values(catSnap.val()) : [];
+        
+        const prodSnap = await db.ref('products').once('value');
+        products = prodSnap.exists() ? Object.values(prodSnap.val()) : [];
+        
+        const rentSnap = await db.ref('rentals').once('value');
+        rentItems = rentSnap.exists() ? Object.values(rentSnap.val()) : [];
+        
+        applyAll();
     }
 
     // ==================== ÁP DỤNG GIAO DIỆN ====================
+    function applyTheme() {
+        const t = config.theme || {};
+        const root = document.documentElement.style;
+        root.setProperty('--bg-body', t.bgBody || "#fff9ef");
+        root.setProperty('--header-bg', t.headerBg || "#ffe5b4");
+        root.setProperty('--header-text', t.headerText || "#d43f1f");
+        root.setProperty('--primary-btn', t.primaryBtn || "#f0bc6e");
+        root.setProperty('--border-dark', t.borderDark || "#1f1a12");
+        root.setProperty('--cart-bg', t.cartBg || "#fff1df");
+        root.setProperty('--footer-bg', t.footerBg || "#2d2b1f");
+        root.setProperty('--footer-text', t.footerText || "#ffecb3");
+        document.body.style.background = t.bgBody || "#fff9ef";
+    }
+    function applyFonts() {
+        const fc = config.fontConfig || {};
+        const root = document.documentElement.style;
+        if (fc.mainFont) root.setProperty('--main-font', fc.mainFont);
+        if (fc.headerFont) root.setProperty('--header-font', fc.headerFont);
+        if (fc.categoryFont) root.setProperty('--category-font', fc.categoryFont);
+        if (fc.productNameFont) root.setProperty('--product-name-font', fc.productNameFont);
+        if (fc.productPriceFont) root.setProperty('--product-price-font', fc.productPriceFont);
+        if (fc.cartTitleFont) root.setProperty('--cart-title-font', fc.cartTitleFont);
+        if (fc.buttonFont) root.setProperty('--button-font', fc.buttonFont);
+        if (fc.footerFont) root.setProperty('--footer-font', fc.footerFont);
+        if (fc.baseFontSize) root.setProperty('--base-font-size', fc.baseFontSize + 'px');
+        if (fc.productNameSize) root.setProperty('--product-name-size', fc.productNameSize + 'px');
+        if (fc.productPriceSize) root.setProperty('--product-price-size', fc.productPriceSize + 'px');
+        if (fc.cartTitleSize) root.setProperty('--cart-title-size', fc.cartTitleSize + 'px');
+        if (fc.buttonFontSize) root.setProperty('--button-font-size', fc.buttonFontSize + 'px');
+        if (fc.categoryFontSize) root.setProperty('--category-font-size', fc.categoryFontSize + 'px');
+        if (fc.footerFontSize) root.setProperty('--footer-font-size', fc.footerFontSize + 'px');
+        if (fc.productWeight) root.setProperty('--product-weight', fc.productWeight);
+    }
     function applyConfigUI() {
         document.title = config.siteTitle || "FilmStore Cartoon";
         document.getElementById('shopNameDisplay').innerText = config.shopName || "FilmStore Cartoon";
@@ -488,24 +575,31 @@
         const bannerDiv = document.getElementById('mainBanner');
         if (config.mainBannerUrl && config.mainBannerUrl.trim() !== "") {
             const img = new Image();
-            img.onload = () => { bannerDiv.innerHTML = ''; bannerDiv.appendChild(img); };
-            img.onerror = () => { bannerDiv.innerHTML = '<div class="banner-placeholder">📸 Không tải được ảnh banner</div>'; };
+            img.onload = function() { bannerDiv.innerHTML = ''; bannerDiv.appendChild(img); };
+            img.onerror = function() { bannerDiv.innerHTML = '<div class="banner-placeholder">📸 Không tải được ảnh banner</div>'; };
             img.src = config.mainBannerUrl;
             img.style.width = '100%';
             img.style.height = 'auto';
             img.style.maxHeight = '350px';
             img.style.objectFit = 'cover';
-        } else bannerDiv.innerHTML = '<div class="banner-placeholder">🎞️ Thêm banner từ quản trị</div>';
+            img.style.display = 'block';
+        } else {
+            bannerDiv.innerHTML = '<div class="banner-placeholder">🎞️ Thêm banner từ quản trị</div>';
+        }
         document.getElementById('paymentTextContent').innerText = config.paymentText || "Vui lòng nhập thông tin giao hàng:";
         document.getElementById('footerText').innerText = config.footerText || "";
         const rentBtnSpan = document.getElementById('rentButtonText');
         if (rentBtnSpan) rentBtnSpan.innerText = config.rentButtonLabel || "📸 Thuê máy ảnh";
-        const cartImgContainer = document.getElementById('cartPaymentImageContainer');
-        const rentImgContainer = document.getElementById('rentPaymentImageContainer');
-        cartImgContainer.innerHTML = config.paymentImageCart ? `<img src="${config.paymentImageCart}" class="payment-image">` : '';
-        rentImgContainer.innerHTML = config.paymentImageRent ? `<img src="${config.paymentImageRent}" class="payment-image">` : '';
+        const cartImageContainer = document.getElementById('cartPaymentImageContainer');
+        const rentImageContainer = document.getElementById('rentPaymentImageContainer');
+        if (config.paymentImageCart && config.paymentImageCart.trim() !== "") {
+            cartImageContainer.innerHTML = `<img src="${config.paymentImageCart}" class="payment-image" alt="Hướng dẫn" onerror="this.onerror=null; this.style.display='none';">`;
+        } else cartImageContainer.innerHTML = '';
+        if (config.paymentImageRent && config.paymentImageRent.trim() !== "") {
+            rentImageContainer.innerHTML = `<img src="${config.paymentImageRent}" class="payment-image" alt="Hướng dẫn thuê" onerror="this.onerror=null; this.style.display='none';">`;
+        } else rentImageContainer.innerHTML = '';
         const notifDiv = document.getElementById('notificationText');
-        if (notifDiv) notifDiv.innerText = config.notificationText || "🎉 Chào mừng bạn đến với FilmStore! 🎉\n🎞️ Cửa hàng phim và máy ảnh chất lượng. Giao hàng toàn quốc.";
+        if (notifDiv) notifDiv.innerText = config.notificationText || "";
         const notifBanner = document.getElementById('notificationBanner');
         if (notifBanner) notifBanner.style.setProperty('--notification-bg', config.notificationBg || "#ffefc0");
         const supportFb = document.getElementById('supportFacebookBtn');
@@ -513,8 +607,86 @@
         if (supportFb) supportFb.href = config.supportFacebook || '#';
         if (supportIg) supportIg.href = config.supportInstagram || '#';
     }
+    function applyAll() {
+        applyTheme();
+        applyFonts();
+        applyConfigUI();
+        renderCategories();
+        renderProducts();
+        renderCart();
+        loadCartFromLocal();
+    }
 
-    // ==================== RENDER CATEGORIES ====================
+    // ==================== GIỎ HÀNG (local) ====================
+    function loadCartFromLocal() {
+        const c = localStorage.getItem('filmstore_cart');
+        cart = c ? JSON.parse(c) : [];
+        renderCart();
+    }
+    function saveCartToLocal() {
+        localStorage.setItem('filmstore_cart', JSON.stringify(cart));
+    }
+    function addToCart(id) {
+        const prod = products.find(p=>p.id===id);
+        if(!prod) return;
+        if (prod.stock <= 0) { alert('Sản phẩm đã hết hàng!'); return; }
+        const exist = cart.find(c=>c.id===id);
+        const currentQty = exist ? exist.quantity : 0;
+        if (currentQty + 1 > prod.stock) { alert(`Chỉ còn ${prod.stock} sản phẩm!`); return; }
+        if(exist) exist.quantity++;
+        else cart.push({ id: prod.id, name: prod.name, price: prod.price, quantity: 1, imageUrl: prod.imageUrl || 'https://via.placeholder.com/55' });
+        saveCartToLocal();
+        renderCart();
+    }
+    function renderCart() {
+        const container = document.getElementById('cartItemsList');
+        const totalDiv = document.getElementById('cartTotal');
+        if(!container) return;
+        if(cart.length===0) { container.innerHTML = '<div style="text-align:center; padding:1rem;">🛒 Giỏ trống</div>'; totalDiv.innerHTML = 'Tổng: 0₫'; return; }
+        let total = 0, html = '';
+        cart.forEach(item => {
+            total += item.price * item.quantity;
+            html += `<div class="cart-item">
+                        <img class="cart-item-img" src="${item.imageUrl}" onerror="this.src='https://via.placeholder.com/55'">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${escapeHtml(item.name)}</div>
+                            <div class="cart-item-price">${item.price.toLocaleString()}₫ x ${item.quantity}</div>
+                        </div>
+                        <div class="cart-item-actions">
+                            <button class="cart-down" data-id="${item.id}">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="cart-up" data-id="${item.id}">+</button>
+                            <button class="cart-remove" data-id="${item.id}"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>`;
+        });
+        container.innerHTML = html;
+        totalDiv.innerHTML = `Tổng cộng: <strong>${total.toLocaleString('vi-VN')}₫</strong>`;
+        attachCartEvents();
+    }
+    function attachCartEvents() {
+        document.querySelectorAll('.cart-down').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = parseInt(btn.dataset.id);
+                const idx = cart.findIndex(c => c.id === id);
+                if (idx !== -1) { if (cart[idx].quantity > 1) cart[idx].quantity--; else cart.splice(idx,1); saveCartToLocal(); renderCart(); }
+            });
+        });
+        document.querySelectorAll('.cart-up').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = parseInt(btn.dataset.id);
+                const item = cart.find(c => c.id === id);
+                const prod = products.find(p => p.id === id);
+                if (item && prod && item.quantity + 1 <= prod.stock) { item.quantity++; saveCartToLocal(); renderCart(); }
+                else alert('Không thể thêm, vượt quá tồn kho!');
+            });
+        });
+        document.querySelectorAll('.cart-remove').forEach(btn => {
+            btn.addEventListener('click', () => { const id = parseInt(btn.dataset.id); cart = cart.filter(c => c.id !== id); saveCartToLocal(); renderCart(); });
+        });
+    }
+
+    // ==================== DANH MỤC & SẢN PHẨM ====================
     function renderCategories() {
         const bar = document.getElementById('categoriesBar');
         if (!bar) return;
@@ -531,18 +703,17 @@
             });
         });
     }
-
-    // ==================== RENDER PRODUCTS ====================
     function renderProducts() {
         const container = document.getElementById('productsGrid');
         if (!container) return;
         let filtered = products;
-        if (currentCategoryId !== 'all') filtered = filtered.filter(p => p.categoryId == currentCategoryId);
+        if (currentCategoryId !== 'all') filtered = filtered.filter(p => p.categoryId === currentCategoryId);
         if (searchKeyword.trim() !== '') {
-            filtered = filtered.filter(p => p.name.toLowerCase().includes(searchKeyword.toLowerCase()));
+            const kw = searchKeyword.toLowerCase();
+            filtered = filtered.filter(p => p.name.toLowerCase().includes(kw));
         }
         if (filtered.length === 0) {
-            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem;">🥺 Không tìm thấy sản phẩm</div>';
+            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; font-size:1.2rem; padding:2rem;">🥺 Không tìm thấy sản phẩm</div>';
             return;
         }
         let html = '';
@@ -550,10 +721,10 @@
             const stockText = p.stock > 0 ? `Còn: ${p.stock}` : 'Hết hàng';
             const disabled = p.stock <= 0 ? 'disabled' : '';
             html += `<div class="product-card">
-                        <div class="product-img"><img src="${p.imageUrl || 'https://via.placeholder.com/200'}" onerror="this.src='https://via.placeholder.com/200'"></div>
+                        <div class="product-img"><img src="${p.imageUrl || 'https://via.placeholder.com/200?text=no+img'}" onerror="this.src='https://via.placeholder.com/200?text=error'"></div>
                         <div class="product-info">
                             <div class="product-name">${escapeHtml(p.name)}</div>
-                            <div class="product-price">${Number(p.price).toLocaleString('vi-VN')}₫</div>
+                            <div class="product-price">${p.price.toLocaleString('vi-VN')}₫</div>
                             <div class="product-stock">${stockText}</div>
                             <button class="btn-add ${disabled}" data-id="${p.id}" ${disabled ? 'disabled' : ''}><i class="fas fa-cart-plus"></i> Thêm giỏ</button>
                         </div>
@@ -565,19 +736,19 @@
         });
     }
 
-    // ==================== RENT ITEMS ====================
-    function renderRentItems() {
+    // ==================== THUÊ MÁY ====================
+    function showRentModal() {
         const container = document.getElementById('rentItemsList');
         if (!container) return;
         let html = '';
         rentItems.forEach(item => {
             html += `<div class="rent-card">
-                        <img src="${item.imageUrl || 'https://via.placeholder.com/200'}" onerror="this.src='https://via.placeholder.com/200'">
+                        <img src="${item.imageUrl}" onerror="this.src='https://via.placeholder.com/200?text=no+img'">
                         <div class="rent-name">${escapeHtml(item.name)}</div>
-                        <div class="rent-price">${Number(item.pricePerDay).toLocaleString('vi-VN')}₫/ngày</div>
+                        <div class="rent-price">${item.pricePerDay.toLocaleString('vi-VN')}₫/ngày</div>
                         <div class="rent-stock">Còn: ${item.stock}</div>
                         <div style="display:flex; gap:8px; margin-top:8px;">
-                            <input type="number" id="days_${item.id}" min="1" max="30" value="1" style="width:70px;">
+                            <input type="number" id="days_${item.id}" min="1" max="30" value="1" style="width:70px; padding:6px; border-radius:30px; border:1px solid #111;">
                             <button class="rent-btn-choose" data-id="${item.id}">Chọn thuê</button>
                         </div>
                     </div>`;
@@ -600,103 +771,26 @@
                 document.getElementById('rentModal').style.display = 'none';
             });
         });
-    }
-
-    function showRentModal() {
-        renderRentItems();
         document.getElementById('rentModal').style.display = 'flex';
     }
 
-    // ==================== GIỎ HÀNG (localStorage) ====================
-    function loadCartFromLocal() {
-        const c = localStorage.getItem('filmstore_cart');
-        cart = c ? JSON.parse(c) : [];
-        renderCart();
+    // ==================== THANH TOÁN ====================
+    async function saveOrderToFirebase(orderData) {
+        const newOrderRef = db.ref('orders').push();
+        orderData.id = newOrderRef.key;
+        orderData.createdAt = new Date().toISOString();
+        orderData.status = 'Chờ duyệt';
+        await newOrderRef.set(orderData);
     }
-    function saveCartToLocal() {
-        localStorage.setItem('filmstore_cart', JSON.stringify(cart));
+    async function updateProductStock(productId, newStock) {
+        await db.ref('products/' + productId).update({ stock: newStock });
     }
-    function addToCart(id) {
-        const prod = products.find(p => p.id == id);
-        if (!prod) return;
-        if (prod.stock <= 0) { alert('Sản phẩm đã hết hàng!'); return; }
-        const exist = cart.find(c => c.id === id);
-        const currentQty = exist ? exist.quantity : 0;
-        if (currentQty + 1 > prod.stock) { alert(`Chỉ còn ${prod.stock} sản phẩm!`); return; }
-        if (exist) exist.quantity++;
-        else cart.push({ id: prod.id, name: prod.name, price: prod.price, quantity: 1, imageUrl: prod.imageUrl });
-        saveCartToLocal();
-        renderCart();
-    }
-    function renderCart() {
-        const container = document.getElementById('cartItemsList');
-        const totalDiv = document.getElementById('cartTotal');
-        if (!container) return;
-        if (cart.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:1rem;">🛒 Giỏ trống</div>';
-            totalDiv.innerHTML = 'Tổng: 0₫';
-            return;
-        }
-        let total = 0, html = '';
-        cart.forEach(item => {
-            total += item.price * item.quantity;
-            html += `<div class="cart-item">
-                        <img class="cart-item-img" src="${item.imageUrl || 'https://via.placeholder.com/55'}" onerror="this.src='https://via.placeholder.com/55'">
-                        <div class="cart-item-info">
-                            <div class="cart-item-name">${escapeHtml(item.name)}</div>
-                            <div class="cart-item-price">${Number(item.price).toLocaleString()}₫ x ${item.quantity}</div>
-                        </div>
-                        <div class="cart-item-actions">
-                            <button class="cart-down" data-id="${item.id}">-</button>
-                            <span>${item.quantity}</span>
-                            <button class="cart-up" data-id="${item.id}">+</button>
-                            <button class="cart-remove" data-id="${item.id}"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>`;
-        });
-        container.innerHTML = html;
-        totalDiv.innerHTML = `Tổng cộng: <strong>${total.toLocaleString('vi-VN')}₫</strong>`;
-        attachCartEvents();
-    }
-    function attachCartEvents() {
-        document.querySelectorAll('.cart-down').forEach(btn => {
-            btn.onclick = () => {
-                const id = parseInt(btn.dataset.id);
-                const idx = cart.findIndex(c => c.id === id);
-                if (idx !== -1) {
-                    if (cart[idx].quantity > 1) cart[idx].quantity--;
-                    else cart.splice(idx, 1);
-                    saveCartToLocal();
-                    renderCart();
-                }
-            };
-        });
-        document.querySelectorAll('.cart-up').forEach(btn => {
-            btn.onclick = () => {
-                const id = parseInt(btn.dataset.id);
-                const item = cart.find(c => c.id === id);
-                const prod = products.find(p => p.id === id);
-                if (item && prod && item.quantity + 1 <= prod.stock) {
-                    item.quantity++;
-                    saveCartToLocal();
-                    renderCart();
-                } else alert('Không thể thêm, vượt quá tồn kho!');
-            };
-        });
-        document.querySelectorAll('.cart-remove').forEach(btn => {
-            btn.onclick = () => {
-                const id = parseInt(btn.dataset.id);
-                cart = cart.filter(c => c.id !== id);
-                saveCartToLocal();
-                renderCart();
-            };
-        });
+    async function updateRentalStock(rentalId, newStock) {
+        await db.ref('rentals/' + rentalId).update({ stock: newStock });
     }
 
-    // ==================== THANH TOÁN ====================
     async function processCartOrder(customerInfo, redirectUrl) {
         if (cart.length === 0) { alert('Giỏ hàng trống!'); return false; }
-        // Kiểm tra stock
         for (let item of cart) {
             const prod = products.find(p => p.id === item.id);
             if (!prod || prod.stock < item.quantity) {
@@ -704,30 +798,22 @@
                 return false;
             }
         }
-        // Cập nhật stock trên sheet (gửi request cập nhật từng sản phẩm)
         for (let item of cart) {
             const prod = products.find(p => p.id === item.id);
             if (prod) {
                 prod.stock -= item.quantity;
-                // Gửi cập nhật stock lên sheet (dùng POST với action updateProductStock)
-                await postToSheet('products', { id: prod.id, stock: prod.stock }, 'updateStock');
+                await updateProductStock(prod.id, prod.stock);
             }
         }
         const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
         const order = {
-            id: Date.now().toString(),
             type: 'mua_hang',
-            customer_fullName: customerInfo.fullName,
-            customer_phone: customerInfo.phone,
-            customer_address: customerInfo.address,
-            items: JSON.stringify(cart.map(i => ({ name: i.name, price: i.price, quantity: i.quantity }))),
+            customer: customerInfo,
+            items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity })),
             total: total,
-            status: 'Chờ duyệt',
-            createdAt: new Date().toISOString(),
             redirectUrl: redirectUrl
         };
-        await postToSheet('orders', order);
-        // Xóa giỏ
+        await saveOrderToFirebase(order);
         cart = [];
         saveCartToLocal();
         renderCart();
@@ -749,20 +835,15 @@
             return false;
         }
         currentItem.stock--;
-        await postToSheet('rentals', { id: currentItem.id, stock: currentItem.stock }, 'updateStock');
+        await updateRentalStock(currentItem.id, currentItem.stock);
         const order = {
-            id: Date.now().toString(),
             type: 'thue_may',
-            customer_fullName: customerInfo.fullName,
-            customer_phone: customerInfo.phone,
-            customer_address: customerInfo.address,
-            rental: JSON.stringify({ name: item.name, pricePerDay: item.pricePerDay, days: days, total: totalPrice }),
+            customer: customerInfo,
+            rental: { name: item.name, pricePerDay: item.pricePerDay, days: days, total: totalPrice },
             total: totalPrice,
-            status: 'Chờ duyệt',
-            createdAt: new Date().toISOString(),
             redirectUrl: redirectUrl
         };
-        await postToSheet('orders', order);
+        await saveOrderToFirebase(order);
         document.getElementById('rentPaymentModal').style.display = 'none';
         if (redirectUrl && redirectUrl !== 'https://facebook.com' && redirectUrl !== 'https://instagram.com') {
             window.open(redirectUrl, '_blank');
@@ -774,24 +855,18 @@
     }
 
     // ==================== SỰ KIỆN ====================
-    function performSearch() {
-        searchKeyword = document.getElementById('searchInput').value;
-        renderProducts();
-    }
+    function performSearch() { searchKeyword = document.getElementById('searchInput').value; renderProducts(); }
     document.getElementById('searchBtn')?.addEventListener('click', performSearch);
-    document.getElementById('searchInput')?.addEventListener('keypress', e => { if (e.key === 'Enter') performSearch(); });
+    document.getElementById('searchInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
     document.getElementById('openRentModalBtn')?.addEventListener('click', showRentModal);
     document.getElementById('closeRentModal')?.addEventListener('click', () => document.getElementById('rentModal').style.display = 'none');
     document.getElementById('closeRentPaymentModal')?.addEventListener('click', () => {
         document.getElementById('rentPaymentModal').style.display = 'none';
         pendingRental = null;
     });
-    document.getElementById('checkoutBtn')?.addEventListener('click', () => {
-        if (cart.length) document.getElementById('paymentModal').style.display = 'flex';
-        else alert('Giỏ trống');
-    });
+    document.getElementById('checkoutBtn')?.addEventListener('click', () => { if (cart.length) document.getElementById('paymentModal').style.display = 'flex'; else alert('Giỏ trống'); });
     document.getElementById('closeModalBtn')?.addEventListener('click', () => document.getElementById('paymentModal').style.display = 'none');
-    window.addEventListener('click', e => {
+    window.addEventListener('click', (e) => {
         if (e.target === document.getElementById('rentModal')) document.getElementById('rentModal').style.display = 'none';
         if (e.target === document.getElementById('paymentModal')) document.getElementById('paymentModal').style.display = 'none';
         if (e.target === document.getElementById('rentPaymentModal')) {
@@ -799,13 +874,8 @@
             pendingRental = null;
         }
     });
-    document.getElementById('clearCartBtn')?.addEventListener('click', () => {
-        if (cart.length && confirm('Xóa hết giỏ hàng?')) {
-            cart = [];
-            saveCartToLocal();
-            renderCart();
-        }
-    });
+    document.getElementById('clearCartBtn')?.addEventListener('click', () => { if (cart.length && confirm('Xóa hết giỏ hàng?')) { cart = []; saveCartToLocal(); renderCart(); } });
+
     document.getElementById('confirmOrderBtn')?.addEventListener('click', async () => {
         const fullName = document.getElementById('fullName').value.trim();
         const phone = document.getElementById('phone').value.trim();
@@ -834,13 +904,13 @@
         await processRentOrder(customerInfo, redirectUrl);
     });
 
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
-    }
+    function escapeHtml(str) { return str.replace(/[&<>]/g, m=> m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
 
-    // Khởi tạo
-    loadAllData();
+    // ==================== KHỞI TẠO ====================
+    (async function() {
+        await loadFirebaseData();
+        loadCartFromLocal();
+    })();
 </script>
 </body>
 </html>
