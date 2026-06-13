@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title id="adminTitle">Quản trị - FilmStore Pro</title>
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600&family=Poppins:wght@400;600&family=Roboto:wght@400;500;700&family=Nunito:wght@400;600;700&family=Open+Sans:wght@400;600&family=Noto+Sans:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;600&family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&family=Montserrat:wght@400;500;600&family=Source+Sans+3:wght@400;600&family=Playfair+Display:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
@@ -52,29 +51,10 @@
             padding-top: 1rem;
             border-top: 1px solid #6b5a3e;
         }
-        .social-links {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
-        .social-links a {
-            color: var(--admin-sidebar-text);
-            font-size: 1.4rem;
-            transition: 0.2s;
-        }
+        .social-links { display: flex; gap: 15px; justify-content: center; margin-bottom: 1rem; }
+        .social-links a { color: var(--admin-sidebar-text); font-size: 1.4rem; transition: 0.2s; }
         .social-links a:hover { color: var(--admin-btn); }
-        .logout-btn {
-            background: #b45a3b;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-            border: none;
-        }
+        .logout-btn { background: #b45a3b; color: white; text-align: center; padding: 10px; border-radius: 40px; cursor: pointer; font-weight: bold; width: 100%; border: none; }
         .main-content { flex: 1; padding: 1.5rem; overflow-y: auto; }
         .admin-panel { background: var(--admin-content-bg); border-radius: 48px; border: 4px solid var(--admin-border); padding: 1.5rem; box-shadow: 12px 12px 0 #bbaa7a; }
         .section { display: none; }
@@ -105,15 +85,7 @@
         .order-details { flex: 1; }
         .order-status { font-weight: bold; padding: 4px 12px; border-radius: 40px; background: #ffc107; color: #333; }
         .order-status.approved { background: #28a745; color: white; }
-        .login-form {
-            max-width: 360px;
-            margin: 2rem auto;
-            text-align: center;
-            background: #fff6e8;
-            padding: 2rem;
-            border-radius: 60px;
-            border: 4px solid #1f1a10;
-        }
+        .login-form { max-width: 360px; margin: 2rem auto; text-align: center; background: #fff6e8; padding: 2rem; border-radius: 60px; border: 4px solid #1f1a10; }
         .payment-image-preview { max-width: 200px; max-height: 300px; border-radius: 20px; margin-top: 8px; border: 2px solid #9b7a4a; }
         .grid-2cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         hr { margin: 1rem 0; border: 1px dashed #c0aa7a; }
@@ -332,7 +304,6 @@
 </div>
 
 <script>
-    // ==================== FIREBASE CONFIG ====================
     const firebaseConfig = {
         apiKey: "AIzaSyCdJVcEq5GCBi3nxi52KmHx9XoJz9U-GSw",
         authDomain: "banhsungboo.firebaseapp.com",
@@ -346,7 +317,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // ==================== HÀM TẠO DỮ LIỆU MẪU ====================
+    // Biến toàn cục
+    let config = {}, categories = [], products = [], rentItems = [], orders = [];
+    let adminUsername = 'admin', adminPassword = 'admin123';
+
+    // ==================== TẠO DỮ LIỆU MẪU ====================
     async function initializeDefaultData() {
         const catSnap = await db.ref('categories').once('value');
         if (!catSnap.exists()) {
@@ -414,26 +389,15 @@
         }
     }
 
-    // ==================== BIẾN TOÀN CỤC ====================
-    let config = {}, categories = [], products = [], rentItems = [], orders = [];
-    let adminUsername = 'admin', adminPassword = 'admin123';
-
+    // ==================== TẢI DỮ LIỆU ====================
     async function loadConfig() {
         const snap = await db.ref('config').once('value');
         config = snap.val() || {};
         adminUsername = config.adminUsername || 'admin';
         adminPassword = config.adminPassword || 'admin123';
-        fillGeneralForm();
-        fillColorForm();
-        fillAdminColorForm();
-        fillFontForm();
-        fillPaymentForm();
-        fillPaymentImagesForm();
-        fillBannerForm();
-        updateSidebarTitle();
-        updateAdminTitle();
-        updateSocialLinks();
-        applyAdminTheme();
+        fillGeneralForm(); fillColorForm(); fillAdminColorForm(); fillFontForm();
+        fillPaymentForm(); fillPaymentImagesForm(); fillBannerForm();
+        updateSidebarTitle(); updateAdminTitle(); updateSocialLinks(); applyAdminTheme();
     }
     async function loadCategories() {
         const snap = await db.ref('categories').once('value');
@@ -546,14 +510,12 @@
             reader.onload = async (e) => {
                 updates.logoUrl = e.target.result;
                 await db.ref('config').update(updates);
-                alert('Đã lưu');
-                loadConfig();
+                alert('Đã lưu'); loadConfig();
             };
             reader.readAsDataURL(file);
         } else {
             await db.ref('config').update(updates);
-            alert('Đã lưu');
-            loadConfig();
+            alert('Đã lưu'); loadConfig();
         }
     }
     async function saveColor() {
@@ -568,8 +530,7 @@
             footerText: document.getElementById('footerTextColor').value
         };
         await db.ref('config/theme').set(theme);
-        alert('Đã lưu màu web');
-        loadConfig();
+        alert('Đã lưu màu web'); loadConfig();
     }
     async function resetColor() {
         const defaultTheme = {
@@ -578,8 +539,7 @@
             footerBg: "#2d2b1f", footerText: "#ffecb3"
         };
         await db.ref('config/theme').set(defaultTheme);
-        alert('Đã reset màu');
-        loadConfig();
+        alert('Đã reset màu'); loadConfig();
     }
     async function saveAdminColor() {
         const adminTheme = {
@@ -591,8 +551,7 @@
             btn: document.getElementById('adminBtn').value
         };
         await db.ref('config/adminTheme').set(adminTheme);
-        alert('Đã lưu màu quản trị');
-        loadConfig();
+        alert('Đã lưu màu quản trị'); loadConfig();
     }
     async function saveFont() {
         const fontConfig = {
@@ -614,8 +573,7 @@
             productWeight: document.getElementById('productWeight').value
         };
         await db.ref('config/fontConfig').set(fontConfig);
-        alert('Đã lưu font');
-        loadConfig();
+        alert('Đã lưu font'); loadConfig();
     }
     async function savePayment() {
         await db.ref('config').update({
@@ -624,8 +582,7 @@
             instagramCheckout: document.getElementById('igLinkInput').value,
             footerText: document.getElementById('footerTextInput').value
         });
-        alert('Đã lưu');
-        loadConfig();
+        alert('Đã lưu'); loadConfig();
     }
     async function savePaymentImage(type) {
         let url = document.getElementById(type === 'cart' ? 'paymentImageCartUrl' : 'paymentImageRentUrl').value;
@@ -634,20 +591,17 @@
             const reader = new FileReader();
             reader.onload = async (e) => {
                 await db.ref('config').update({ [`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`]: e.target.result });
-                alert('Đã lưu ảnh');
-                loadConfig();
+                alert('Đã lưu ảnh'); loadConfig();
             };
             reader.readAsDataURL(file);
         } else {
             await db.ref('config').update({ [`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`]: url });
-            alert('Đã lưu ảnh');
-            loadConfig();
+            alert('Đã lưu ảnh'); loadConfig();
         }
     }
     async function clearPaymentImage(type) {
         await db.ref('config').update({ [`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`]: '' });
-        alert('Đã xóa ảnh');
-        loadConfig();
+        alert('Đã xóa ảnh'); loadConfig();
     }
     function showPaymentImagePreviews() {
         const cartPrev = document.getElementById('paymentImageCartPreview');
@@ -662,14 +616,12 @@
             const reader = new FileReader();
             reader.onload = async (e) => {
                 await db.ref('config').update({ mainBannerUrl: e.target.result });
-                alert('Banner cập nhật');
-                loadConfig();
+                alert('Banner cập nhật'); loadConfig();
             };
             reader.readAsDataURL(file);
         } else {
             await db.ref('config').update({ mainBannerUrl: url });
-            alert('Banner cập nhật');
-            loadConfig();
+            alert('Banner cập nhật'); loadConfig();
         }
     }
     function showBannerPreview() {
@@ -677,7 +629,7 @@
         area.innerHTML = config.mainBannerUrl ? `<img src="${config.mainBannerUrl}" style="max-width:200px; border-radius:20px;">` : '<p>Chưa có banner</p>';
     }
 
-    // ==================== CATEGORIES CRUD ====================
+    // ==================== DANH MỤC (CRUD) ====================
     async function saveCategoriesToDB() {
         const obj = {};
         categories.forEach(c => obj[c.id] = c);
@@ -774,7 +726,7 @@
         alert('Đã thêm danh mục');
     }
 
-    // ==================== PRODUCTS CRUD ====================
+    // ==================== SẢN PHẨM (CRUD) ====================
     async function saveProductsToDB() {
         const obj = {};
         products.forEach(p => obj[p.id] = p);
@@ -869,7 +821,7 @@
         document.getElementById('editId').value = '';
     }
 
-    // ==================== RENTALS CRUD ====================
+    // ==================== MÁY CHO THUÊ (CRUD) ====================
     async function saveRentalsToDB() {
         const obj = {};
         rentItems.forEach(r => obj[r.id] = r);
@@ -961,7 +913,7 @@
         document.getElementById('editRentId').value = '';
     }
 
-    // ==================== ORDERS ====================
+    // ==================== ĐƠN HÀNG ====================
     async function updateOrderStatus(orderId, newStatus) {
         await db.ref('orders/' + orderId).update({ status: newStatus });
         loadOrders();
@@ -1042,7 +994,7 @@
         root.setProperty('--admin-btn', at.btn);
     }
 
-    // ==================== PASSWORD ====================
+    // ==================== ĐỔI MẬT KHẨU & AUTH ====================
     async function changePassword() {
         const old = document.getElementById('oldPassword').value;
         const newPass = document.getElementById('newPassword').value;
@@ -1057,7 +1009,6 @@
         location.reload();
     }
 
-    // ==================== AUTH ====================
     function checkAuth() {
         if (sessionStorage.getItem('admin_auth') === 'true') {
             document.getElementById('loginSection').style.display = 'none';
@@ -1112,7 +1063,7 @@
         });
     }
 
-    // ==================== NAVIGATION ====================
+    // ==================== CHUYỂN TAB & KHỞI TẠO ====================
     document.querySelectorAll('.sidebar nav a').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1127,7 +1078,7 @@
     });
     document.querySelector('.sidebar nav a').classList.add('active');
 
-    // ==================== EVENT LISTENERS ====================
+    // Event listeners
     document.getElementById('doLogin')?.addEventListener('click', async () => {
         const username = document.getElementById('username').value;
         const pwd = document.getElementById('password').value;
@@ -1140,7 +1091,6 @@
         sessionStorage.removeItem('admin_auth');
         location.reload();
     });
-
     document.getElementById('saveGeneralBtn')?.addEventListener('click', saveGeneral);
     document.getElementById('saveColorBtn')?.addEventListener('click', saveColor);
     document.getElementById('resetColorBtn')?.addEventListener('click', resetColor);
@@ -1170,6 +1120,11 @@
 
     populateFontSelects();
     checkAuth();
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    }
 </script>
 </body>
 </html>
