@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title id="adminTitle">Quản trị - FilmStore Pro</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600&family=Poppins:wght@400;600&family=Roboto:wght@400;500;700&family=Nunito:wght@400;600;700&family=Open+Sans:wght@400;600&family=Noto+Sans:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;600&family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&family=Montserrat:wght@400;500;600&family=Source+Sans+3:wght@400;600&family=Playfair+Display:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* giữ nguyên CSS như bản trước */
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Quicksand',sans-serif; }
         body { background: var(--admin-bg, #e9e2d0); display: flex; min-height: 100vh; }
         :root {
@@ -28,20 +30,51 @@
             flex-direction: column;
             justify-content: space-between;
         }
-        .sidebar h2 { font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 2rem; text-align: center; color: #ffc857; }
+        .sidebar h2 { font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 2rem; text-align: center; color: #ffc857; word-break: break-word; }
         .sidebar nav { flex: 1; }
         .sidebar nav a {
             display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin: 8px 0;
             background: #3f3c2e; border-radius: 40px; text-decoration: none; color: var(--admin-sidebar-text);
             font-weight: bold; border: 1px solid #6b5a3e;
+            position: relative;
         }
         .sidebar nav a:hover, .sidebar nav a.active { background: var(--admin-btn); color: #2d2b1f; box-shadow: 3px 3px 0 var(--admin-border); }
-        .notification-badge { background-color: #ff6b6b; color: white; border-radius: 30px; padding: 2px 8px; font-size: 0.7rem; margin-left: auto; }
-        .sidebar-footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #6b5a3e; }
-        .social-links { display: flex; gap: 15px; justify-content: center; margin-bottom: 1rem; }
-        .social-links a { color: var(--admin-sidebar-text); font-size: 1.4rem; transition: 0.2s; }
+        .notification-badge {
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 30px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            margin-left: auto;
+        }
+        .sidebar-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #6b5a3e;
+        }
+        .social-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .social-links a {
+            color: var(--admin-sidebar-text);
+            font-size: 1.4rem;
+            transition: 0.2s;
+        }
         .social-links a:hover { color: var(--admin-btn); }
-        .logout-btn { background: #b45a3b; color: white; text-align: center; padding: 10px; border-radius: 40px; cursor: pointer; font-weight: bold; width: 100%; border: none; }
+        .logout-btn {
+            background: #b45a3b;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            border: none;
+        }
         .main-content { flex: 1; padding: 1.5rem; overflow-y: auto; }
         .admin-panel { background: var(--admin-content-bg); border-radius: 48px; border: 4px solid var(--admin-border); padding: 1.5rem; box-shadow: 12px 12px 0 #bbaa7a; }
         .section { display: none; }
@@ -72,7 +105,15 @@
         .order-details { flex: 1; }
         .order-status { font-weight: bold; padding: 4px 12px; border-radius: 40px; background: #ffc107; color: #333; }
         .order-status.approved { background: #28a745; color: white; }
-        .login-form { max-width: 400px; margin: 2rem auto; text-align: center; background: #fff6e8; padding: 2rem; border-radius: 60px; border: 4px solid #1f1a10; }
+        .login-form {
+            max-width: 360px;
+            margin: 2rem auto;
+            text-align: center;
+            background: #fff6e8;
+            padding: 2rem;
+            border-radius: 60px;
+            border: 4px solid #1f1a10;
+        }
         .payment-image-preview { max-width: 200px; max-height: 300px; border-radius: 20px; margin-top: 8px; border: 2px solid #9b7a4a; }
         .grid-2cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         hr { margin: 1rem 0; border: 1px dashed #c0aa7a; }
@@ -99,9 +140,9 @@
 <body>
 <div id="loginSection" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:#e9e2d0; z-index:2000; justify-content:center; align-items:center;">
     <div class="login-form">
-        <h2>🔐 Đăng nhập quản trị</h2>
-        <input type="text" id="loginUsername" placeholder="Tên đăng nhập"><br><br>
-        <input type="password" id="loginPassword" placeholder="Mật khẩu"><br><br>
+        <h2>🔐 Đăng nhập</h2>
+        <input type="text" id="username" placeholder="Tên đăng nhập" value="admin"><br><br>
+        <input type="password" id="password" placeholder="Mật khẩu"><br><br>
         <button id="doLogin">Đăng nhập</button>
     </div>
 </div>
@@ -109,7 +150,7 @@
 <div id="adminApp" style="display: flex; width: 100%;">
     <div class="sidebar">
         <div>
-            <h2 id="sidebarTitle">Cartoon Admin</h2>
+            <h2 id="sidebarTitle">FilmStore Admin</h2>
             <nav>
                 <a href="#" data-section="general"><i class="fas fa-home"></i> Tổng quan</a>
                 <a href="#" data-section="color"><i class="fas fa-palette"></i> Màu sắc web</a>
@@ -138,7 +179,7 @@
     </div>
     <div class="main-content">
         <div class="admin-panel">
-            <!-- ========== GENERAL ========== -->
+            <!-- GENERAL -->
             <div id="section-general" class="section active">
                 <h2>📌 Cấu hình chung</h2>
                 <div class="form-group"><label>Tên shop (trên logo)</label><input type="text" id="shopNameInput"></div>
@@ -151,13 +192,13 @@
                 <div class="form-group"><label>Nội dung</label><textarea id="notificationTextInput" rows="3"></textarea></div>
                 <div class="form-group"><label>Màu nền</label><input type="color" id="notificationBgInput"></div>
                 <hr>
-                <h3>📱 Liên kết hỗ trợ</h3>
+                <h3>📱 Liên kết hỗ trợ (Facebook/Instagram)</h3>
                 <div class="form-group"><label>Facebook hỗ trợ</label><input type="url" id="supportFacebookInput"></div>
                 <div class="form-group"><label>Instagram hỗ trợ</label><input type="url" id="supportInstagramInput"></div>
                 <button id="saveGeneralBtn">💾 Lưu cấu hình</button>
             </div>
 
-            <!-- ========== MÀU SẮC WEB ========== -->
+            <!-- MÀU SẮC WEB -->
             <div id="section-color" class="section">
                 <h2>🎨 Màu sắc trang chủ</h2>
                 <div class="form-group"><label>Màu nền</label><input type="color" id="bgBody" class="color-input"></div>
@@ -172,7 +213,7 @@
                 <button id="resetColorBtn" style="background:#d98c5f;">🔄 Reset mặc định</button>
             </div>
 
-            <!-- ========== MÀU QUẢN TRỊ ========== -->
+            <!-- MÀU QUẢN TRỊ -->
             <div id="section-admincolor" class="section">
                 <h2>🖌️ Màu trang quản trị</h2>
                 <div class="form-group"><label>Nền tổng</label><input type="color" id="adminBg" class="color-input"></div>
@@ -184,7 +225,7 @@
                 <button id="saveAdminColorBtn">💾 Lưu màu quản trị</button>
             </div>
 
-            <!-- ========== FONT CHỮ & CỠ ========== -->
+            <!-- FONT CHỮ & CỠ -->
             <div id="section-font" class="section">
                 <h2>🔤 Font chữ & cỡ chữ</h2>
                 <div class="grid-2cols">
@@ -211,18 +252,16 @@
                 <button id="saveFontBtn">💾 Lưu font</button>
             </div>
 
-            <!-- ========== ĐỔI MẬT KHẨU ========== -->
+            <!-- ĐỔI MẬT KHẨU -->
             <div id="section-password" class="section">
                 <h2>🔒 Đổi mật khẩu quản trị</h2>
-                <div class="form-group"><label>Tên đăng nhập hiện tại</label><input type="text" id="currentUsername" readonly style="background:#e9e2d0;"></div>
                 <div class="form-group"><label>Mật khẩu hiện tại</label><input type="password" id="oldPassword" placeholder="Mật khẩu cũ"></div>
-                <div class="form-group"><label>Tên đăng nhập mới</label><input type="text" id="newUsername" placeholder="Tên đăng nhập mới"></div>
                 <div class="form-group"><label>Mật khẩu mới</label><input type="password" id="newPassword" placeholder="Mật khẩu mới"></div>
                 <div class="form-group"><label>Xác nhận mật khẩu mới</label><input type="password" id="confirmPassword" placeholder="Nhập lại"></div>
-                <button id="changePasswordBtn">💾 Cập nhật tài khoản</button>
+                <button id="changePasswordBtn">💾 Đổi mật khẩu</button>
             </div>
 
-            <!-- ========== THANH TOÁN & FOOTER ========== -->
+            <!-- THANH TOÁN & FOOTER -->
             <div id="section-payment" class="section">
                 <h2>💳 Nội dung thanh toán & footer</h2>
                 <div class="form-group"><label>Văn bản modal thanh toán</label><textarea id="paymentText" rows="3"></textarea></div>
@@ -232,27 +271,27 @@
                 <button id="savePaymentBtn">💾 Lưu</button>
             </div>
 
-            <!-- ========== ẢNH THANH TOÁN ========== -->
+            <!-- ẢNH THANH TOÁN -->
             <div id="section-paymentImages" class="section">
                 <h2>🖼️ Ảnh thanh toán (QR, hướng dẫn)</h2>
                 <div class="form-group"><label>Ảnh giỏ hàng (URL / upload)</label><input type="text" id="paymentImageCartUrl"><input type="file" id="paymentImageCartUpload" accept="image/*"><button id="savePaymentImageCartBtn">Lưu</button><button id="clearPaymentImageCartBtn">Xóa</button><div id="paymentImageCartPreview"></div></div>
                 <div class="form-group"><label>Ảnh thuê máy (URL / upload)</label><input type="text" id="paymentImageRentUrl"><input type="file" id="paymentImageRentUpload" accept="image/*"><button id="savePaymentImageRentBtn">Lưu</button><button id="clearPaymentImageRentBtn">Xóa</button><div id="paymentImageRentPreview"></div></div>
             </div>
 
-            <!-- ========== BANNER ========== -->
+            <!-- BANNER -->
             <div id="section-banner" class="section">
                 <h2>🖼️ Banner chính</h2>
                 <div class="form-group"><input type="text" id="bannerUrlInput" placeholder="URL ảnh"><input type="file" id="bannerUpload" accept="image/*"><button id="updateBannerBtn">Cập nhật</button><div id="bannerPreviewArea"></div></div>
             </div>
 
-            <!-- ========== DANH MỤC ========== -->
+            <!-- DANH MỤC -->
             <div id="section-category" class="section">
                 <h2>📂 Danh mục</h2>
                 <div class="form-group"><input type="text" id="catName" placeholder="Tên danh mục"><button id="addCatBtn">➕ Thêm danh mục</button></div>
                 <div id="catList" class="cat-list"></div>
             </div>
 
-            <!-- ========== SẢN PHẨM ========== -->
+            <!-- SẢN PHẨM -->
             <div id="section-product" class="section">
                 <h2>📦 Sản phẩm (có tồn kho)</h2>
                 <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
@@ -268,7 +307,7 @@
                 <div id="productList" class="product-list"></div>
             </div>
 
-            <!-- ========== CHO THUÊ MÁY ========== -->
+            <!-- CHO THUÊ MÁY -->
             <div id="section-rental" class="section">
                 <h2>📸 Quản lý máy cho thuê</h2>
                 <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
@@ -283,7 +322,7 @@
                 <div id="rentalList" class="rental-list"></div>
             </div>
 
-            <!-- ========== ĐƠN HÀNG ========== -->
+            <!-- ĐƠN HÀNG -->
             <div id="section-orders" class="section">
                 <h2>📦 Quản lý đơn hàng</h2>
                 <div id="ordersList" class="orders-list"></div>
@@ -293,55 +332,97 @@
 </div>
 
 <script>
-    // ==================== CẤU HÌNH API ====================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzHT3I2yI_sUSf84D9-81kuYdnjpvpzlmBhOpdEM3YwqRg-70bm25sKMqCTl2eryLfbyQ/exec';
+    // ==================== FIREBASE CONFIG ====================
+    const firebaseConfig = {
+        apiKey: "AIzaSyCdJVcEq5GCBi3nxi52KmHx9XoJz9U-GSw",
+        authDomain: "banhsungboo.firebaseapp.com",
+        databaseURL: "https://banhsungboo-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "banhsungboo",
+        storageBucket: "banhsungboo.firebasestorage.app",
+        messagingSenderId: "983206724851",
+        appId: "1:983206724851:web:ae5a84fdc8c00eac426386",
+        measurementId: "G-2SD78JC9YE"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    async function fetchSheetData(sheetName) {
-        try {
-            const res = await fetch(`${API_URL}?sheet=${sheetName}`);
-            return await res.json();
-        } catch (err) {
-            console.error(`Lỗi fetch ${sheetName}:`, err);
-            return [];
-        }
-    }
-    async function postToSheet(sheet, data, action = null) {
-        const payload = action ? { sheet, action, data } : { sheet, data };
-        try {
-            await fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+    // ==================== HÀM TẠO DỮ LIỆU MẪU ====================
+    async function initializeDefaultData() {
+        const catSnap = await db.ref('categories').once('value');
+        if (!catSnap.exists()) {
+            await db.ref('categories').set({
+                1: { id: 1, name: "📷 Phim máy ảnh" },
+                2: { id: 2, name: "📸 Máy ảnh" }
             });
-        } catch (err) {
-            console.error('Lỗi post:', err);
+        }
+        const prodSnap = await db.ref('products').once('value');
+        if (!prodSnap.exists()) {
+            await db.ref('products').set({
+                1: { id: 1, name: "Kodak Portra 400", price: 350000, imageUrl: "https://picsum.photos/id/20/200/150", categoryId: 1, stock: 10 },
+                2: { id: 2, name: "Fujifilm Superia 400", price: 280000, imageUrl: "https://picsum.photos/id/21/200/150", categoryId: 1, stock: 8 },
+                3: { id: 3, name: "Máy ảnh phim Canon AE-1", price: 4500000, imageUrl: "https://picsum.photos/id/1/200/150", categoryId: 2, stock: 3 }
+            });
+        }
+        const rentSnap = await db.ref('rentals').once('value');
+        if (!rentSnap.exists()) {
+            await db.ref('rentals').set({
+                1: { id: 1, name: "Canon EOS 5D Mark IV", pricePerDay: 450000, imageUrl: "https://picsum.photos/id/1/200/150", stock: 3 },
+                2: { id: 2, name: "Sony A7 III", pricePerDay: 400000, imageUrl: "https://picsum.photos/id/2/200/150", stock: 2 },
+                3: { id: 3, name: "Fujifilm X-T4", pricePerDay: 350000, imageUrl: "https://picsum.photos/id/3/200/150", stock: 4 }
+            });
+        }
+        const configSnap = await db.ref('config').once('value');
+        if (!configSnap.exists()) {
+            await db.ref('config').set({
+                shopName: "FilmStore Cartoon",
+                siteTitle: "FilmStore Cartoon",
+                adminTitle: "Quản trị - FilmStore Pro",
+                logoUrl: "",
+                mainBannerUrl: "",
+                facebookCheckout: "",
+                instagramCheckout: "",
+                paymentText: "Vui lòng nhập thông tin giao hàng:",
+                footerText: "© 2025 FilmStore Cartoon",
+                rentButtonLabel: "📸 Thuê máy ảnh",
+                paymentImageCart: "",
+                paymentImageRent: "",
+                supportFacebook: "",
+                supportInstagram: "",
+                notificationText: "🎉 Chào mừng bạn đến với FilmStore! 🎉\n🎞️ Cửa hàng phim và máy ảnh chất lượng.",
+                notificationBg: "#ffefc0",
+                adminPassword: "admin123",
+                adminUsername: "admin",
+                theme: {
+                    bgBody: "#fff9ef", headerBg: "#ffe5b4", headerText: "#d43f1f",
+                    primaryBtn: "#f0bc6e", borderDark: "#1f1a12", cartBg: "#fff1df",
+                    footerBg: "#2d2b1f", footerText: "#ffecb3"
+                },
+                adminTheme: {
+                    bg: "#e9e2d0", sidebarBg: "#2d2b1f", sidebarText: "#ffecb3",
+                    contentBg: "#fff6e8", border: "#1f1a10", btn: "#f0bc6e"
+                },
+                fontConfig: {
+                    mainFont: "'Quicksand', sans-serif", headerFont: "'Fredoka One', cursive",
+                    categoryFont: "'Quicksand', sans-serif", productNameFont: "'Quicksand', sans-serif",
+                    productPriceFont: "'Quicksand', sans-serif", cartTitleFont: "'Quicksand', sans-serif",
+                    buttonFont: "'Quicksand', sans-serif", footerFont: "'Quicksand', sans-serif",
+                    baseFontSize: 16, productNameSize: 20, productPriceSize: 22,
+                    cartTitleSize: 26, buttonFontSize: 16, categoryFontSize: 16,
+                    footerFontSize: 14, productWeight: 700
+                }
+            });
         }
     }
 
     // ==================== BIẾN TOÀN CỤC ====================
-    let config = {};
-    let categories = [];
-    let products = [];
-    let rentItems = [];
-    let orders = [];
-    let adminUsername = 'admin';
-    let adminPassword = 'admin123';
+    let config = {}, categories = [], products = [], rentItems = [], orders = [];
+    let adminUsername = 'admin', adminPassword = 'admin123';
 
-    // ==================== TẢI DỮ LIỆU ====================
-    async function loadAll() {
-        // Load config
-        const configRows = await fetchSheetData('config');
-        config = {};
-        configRows.forEach(row => { config[row.key] = row.value; });
-        if (config.adminUsername) adminUsername = config.adminUsername;
-        if (config.adminPassword) adminPassword = config.adminPassword;
-        categories = await fetchSheetData('categories');
-        products = await fetchSheetData('products');
-        rentItems = await fetchSheetData('rentals');
-        orders = await fetchSheetData('orders');
-        orders.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-        // Cập nhật giao diện
+    async function loadConfig() {
+        const snap = await db.ref('config').once('value');
+        config = snap.val() || {};
+        adminUsername = config.adminUsername || 'admin';
+        adminPassword = config.adminPassword || 'admin123';
         fillGeneralForm();
         fillColorForm();
         fillAdminColorForm();
@@ -349,19 +430,36 @@
         fillPaymentForm();
         fillPaymentImagesForm();
         fillBannerForm();
-        renderCategoryList();
-        renderProductList();
-        renderRentalList();
-        renderOrders();
-        updateOrderBadge();
         updateSidebarTitle();
         updateAdminTitle();
         updateSocialLinks();
         applyAdminTheme();
-        document.getElementById('currentUsername').value = adminUsername;
+    }
+    async function loadCategories() {
+        const snap = await db.ref('categories').once('value');
+        categories = snap.exists() ? Object.values(snap.val()) : [];
+        renderCategoryList();
+        renderCategorySelect();
+    }
+    async function loadProducts() {
+        const snap = await db.ref('products').once('value');
+        products = snap.exists() ? Object.values(snap.val()) : [];
+        renderProductList();
+    }
+    async function loadRentals() {
+        const snap = await db.ref('rentals').once('value');
+        rentItems = snap.exists() ? Object.values(snap.val()) : [];
+        renderRentalList();
+    }
+    async function loadOrders() {
+        const snap = await db.ref('orders').once('value');
+        orders = snap.exists() ? Object.values(snap.val()) : [];
+        orders.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+        renderOrders();
+        updateOrderBadge();
     }
 
-    // ==================== CÁC HÀM FILL FORM ====================
+    // ==================== FILL FORMS ====================
     function fillGeneralForm() {
         document.getElementById('shopNameInput').value = config.shopName || '';
         document.getElementById('siteTitleInput').value = config.siteTitle || '';
@@ -375,7 +473,7 @@
         if (config.logoUrl) document.getElementById('logoPreview').src = config.logoUrl;
     }
     function fillColorForm() {
-        const t = config.theme ? JSON.parse(config.theme) : {};
+        const t = config.theme || {};
         document.getElementById('bgBody').value = t.bgBody || '#fff9ef';
         document.getElementById('headerBg').value = t.headerBg || '#ffe5b4';
         document.getElementById('headerText').value = t.headerText || '#d43f1f';
@@ -386,7 +484,7 @@
         document.getElementById('footerTextColor').value = t.footerText || '#ffecb3';
     }
     function fillAdminColorForm() {
-        const at = config.adminTheme ? JSON.parse(config.adminTheme) : {};
+        const at = config.adminTheme || {};
         document.getElementById('adminBg').value = at.bg || '#e9e2d0';
         document.getElementById('adminSidebarBg').value = at.sidebarBg || '#2d2b1f';
         document.getElementById('adminSidebarText').value = at.sidebarText || '#ffecb3';
@@ -395,7 +493,7 @@
         document.getElementById('adminBtn').value = at.btn || '#f0bc6e';
     }
     function fillFontForm() {
-        const fc = config.fontConfig ? JSON.parse(config.fontConfig) : {};
+        const fc = config.fontConfig || {};
         document.getElementById('mainFontSelect').value = fc.mainFont || "'Quicksand', sans-serif";
         document.getElementById('headerFontSelect').value = fc.headerFont || "'Fredoka One', cursive";
         document.getElementById('categoryFontSelect').value = fc.categoryFont || "'Quicksand', sans-serif";
@@ -447,19 +545,15 @@
             const reader = new FileReader();
             reader.onload = async (e) => {
                 updates.logoUrl = e.target.result;
-                for (let [k, v] of Object.entries(updates)) {
-                    await postToSheet('config', { key: k, value: v });
-                }
+                await db.ref('config').update(updates);
                 alert('Đã lưu');
-                loadAll();
+                loadConfig();
             };
             reader.readAsDataURL(file);
         } else {
-            for (let [k, v] of Object.entries(updates)) {
-                await postToSheet('config', { key: k, value: v });
-            }
+            await db.ref('config').update(updates);
             alert('Đã lưu');
-            loadAll();
+            loadConfig();
         }
     }
     async function saveColor() {
@@ -473,9 +567,9 @@
             footerBg: document.getElementById('footerBg').value,
             footerText: document.getElementById('footerTextColor').value
         };
-        await postToSheet('config', { key: 'theme', value: JSON.stringify(theme) });
+        await db.ref('config/theme').set(theme);
         alert('Đã lưu màu web');
-        loadAll();
+        loadConfig();
     }
     async function resetColor() {
         const defaultTheme = {
@@ -483,9 +577,9 @@
             primaryBtn: "#f0bc6e", borderDark: "#1f1a12", cartBg: "#fff1df",
             footerBg: "#2d2b1f", footerText: "#ffecb3"
         };
-        await postToSheet('config', { key: 'theme', value: JSON.stringify(defaultTheme) });
+        await db.ref('config/theme').set(defaultTheme);
         alert('Đã reset màu');
-        loadAll();
+        loadConfig();
     }
     async function saveAdminColor() {
         const adminTheme = {
@@ -496,9 +590,9 @@
             border: document.getElementById('adminBorder').value,
             btn: document.getElementById('adminBtn').value
         };
-        await postToSheet('config', { key: 'adminTheme', value: JSON.stringify(adminTheme) });
+        await db.ref('config/adminTheme').set(adminTheme);
         alert('Đã lưu màu quản trị');
-        loadAll();
+        loadConfig();
     }
     async function saveFont() {
         const fontConfig = {
@@ -519,17 +613,19 @@
             footerFontSize: parseInt(document.getElementById('footerFontSize').value),
             productWeight: document.getElementById('productWeight').value
         };
-        await postToSheet('config', { key: 'fontConfig', value: JSON.stringify(fontConfig) });
+        await db.ref('config/fontConfig').set(fontConfig);
         alert('Đã lưu font');
-        loadAll();
+        loadConfig();
     }
     async function savePayment() {
-        await postToSheet('config', { key: 'paymentText', value: document.getElementById('paymentText').value });
-        await postToSheet('config', { key: 'facebookCheckout', value: document.getElementById('fbLinkInput').value });
-        await postToSheet('config', { key: 'instagramCheckout', value: document.getElementById('igLinkInput').value });
-        await postToSheet('config', { key: 'footerText', value: document.getElementById('footerTextInput').value });
+        await db.ref('config').update({
+            paymentText: document.getElementById('paymentText').value,
+            facebookCheckout: document.getElementById('fbLinkInput').value,
+            instagramCheckout: document.getElementById('igLinkInput').value,
+            footerText: document.getElementById('footerTextInput').value
+        });
         alert('Đã lưu');
-        loadAll();
+        loadConfig();
     }
     async function savePaymentImage(type) {
         let url = document.getElementById(type === 'cart' ? 'paymentImageCartUrl' : 'paymentImageRentUrl').value;
@@ -537,27 +633,27 @@
         if (file) {
             const reader = new FileReader();
             reader.onload = async (e) => {
-                await postToSheet('config', { key: `paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`, value: e.target.result });
+                await db.ref('config').update({ [`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`]: e.target.result });
                 alert('Đã lưu ảnh');
-                loadAll();
+                loadConfig();
             };
             reader.readAsDataURL(file);
         } else {
-            await postToSheet('config', { key: `paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`, value: url });
+            await db.ref('config').update({ [`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`]: url });
             alert('Đã lưu ảnh');
-            loadAll();
+            loadConfig();
         }
     }
     async function clearPaymentImage(type) {
-        await postToSheet('config', { key: `paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`, value: '' });
+        await db.ref('config').update({ [`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`]: '' });
         alert('Đã xóa ảnh');
-        loadAll();
+        loadConfig();
     }
     function showPaymentImagePreviews() {
         const cartPrev = document.getElementById('paymentImageCartPreview');
         const rentPrev = document.getElementById('paymentImageRentPreview');
-        if (cartPrev) cartPrev.innerHTML = config.paymentImageCart ? `<img src="${config.paymentImageCart}" class="payment-image-preview">` : '<p>Chưa có ảnh</p>';
-        if (rentPrev) rentPrev.innerHTML = config.paymentImageRent ? `<img src="${config.paymentImageRent}" class="payment-image-preview">` : '<p>Chưa có ảnh</p>';
+        cartPrev.innerHTML = config.paymentImageCart ? `<img src="${config.paymentImageCart}" class="payment-image-preview">` : '<p>Chưa có ảnh</p>';
+        rentPrev.innerHTML = config.paymentImageRent ? `<img src="${config.paymentImageRent}" class="payment-image-preview">` : '<p>Chưa có ảnh</p>';
     }
     async function updateBanner() {
         let url = document.getElementById('bannerUrlInput').value;
@@ -565,25 +661,27 @@
         if (file) {
             const reader = new FileReader();
             reader.onload = async (e) => {
-                await postToSheet('config', { key: 'mainBannerUrl', value: e.target.result });
+                await db.ref('config').update({ mainBannerUrl: e.target.result });
                 alert('Banner cập nhật');
-                loadAll();
+                loadConfig();
             };
             reader.readAsDataURL(file);
         } else {
-            await postToSheet('config', { key: 'mainBannerUrl', value: url });
+            await db.ref('config').update({ mainBannerUrl: url });
             alert('Banner cập nhật');
-            loadAll();
+            loadConfig();
         }
     }
     function showBannerPreview() {
         const area = document.getElementById('bannerPreviewArea');
-        if (area) area.innerHTML = config.mainBannerUrl ? `<img src="${config.mainBannerUrl}" style="max-width:200px; border-radius:20px;">` : '<p>Chưa có banner</p>';
+        area.innerHTML = config.mainBannerUrl ? `<img src="${config.mainBannerUrl}" style="max-width:200px; border-radius:20px;">` : '<p>Chưa có banner</p>';
     }
 
-    // ==================== CATEGORIES CRUD (dùng replaceAll) ====================
-    async function saveCategoriesToSheet() {
-        await postToSheet('categories', categories, 'replaceAll');
+    // ==================== CATEGORIES CRUD ====================
+    async function saveCategoriesToDB() {
+        const obj = {};
+        categories.forEach(c => obj[c.id] = c);
+        await db.ref('categories').set(obj);
     }
     function renderCategoryList() {
         const container = document.getElementById('catList');
@@ -591,7 +689,7 @@
         if (categories.length === 0) { container.innerHTML = '<p>Chưa có danh mục.</p>'; return; }
         let html = '';
         categories.forEach((cat, idx) => {
-            html += `<div class="cat-item" data-id="${cat.id}">
+            html += `<div class="cat-item">
                         <div><strong>${idx+1}.</strong> ${escapeHtml(cat.name)}</div>
                         <div>
                             ${idx > 0 ? `<button class="move-up" data-id="${cat.id}">⬆️</button>` : ''}
@@ -611,8 +709,9 @@
                 const idx = categories.findIndex(c => c.id === id);
                 if (idx > 0) {
                     [categories[idx-1], categories[idx]] = [categories[idx], categories[idx-1]];
-                    await saveCategoriesToSheet();
-                    loadAll();
+                    await saveCategoriesToDB();
+                    renderCategoryList();
+                    renderCategorySelect();
                 }
             };
         });
@@ -622,8 +721,9 @@
                 const idx = categories.findIndex(c => c.id === id);
                 if (idx < categories.length-1) {
                     [categories[idx+1], categories[idx]] = [categories[idx], categories[idx+1]];
-                    await saveCategoriesToSheet();
-                    loadAll();
+                    await saveCategoriesToDB();
+                    renderCategoryList();
+                    renderCategorySelect();
                 }
             };
         });
@@ -634,8 +734,9 @@
                 const newName = prompt('Tên mới:', cat.name);
                 if (newName && newName.trim()) {
                     cat.name = newName.trim();
-                    await saveCategoriesToSheet();
-                    loadAll();
+                    await saveCategoriesToDB();
+                    renderCategoryList();
+                    renderCategorySelect();
                 }
             };
         });
@@ -644,15 +745,15 @@
                 if (confirm('Xóa danh mục này?')) {
                     const id = parseInt(btn.dataset.id);
                     categories = categories.filter(c => c.id !== id);
-                    await saveCategoriesToSheet();
-                    loadAll();
+                    await saveCategoriesToDB();
+                    renderCategoryList();
+                    renderCategorySelect();
                 }
             };
         });
     }
     function renderCategorySelect() {
         const select = document.getElementById('prodCategory');
-        if (!select) return;
         select.innerHTML = '';
         categories.forEach(cat => {
             const opt = document.createElement('option');
@@ -665,17 +766,19 @@
         const name = document.getElementById('catName').value.trim();
         if (!name) { alert('Vui lòng nhập tên danh mục'); return; }
         const newId = categories.length ? Math.max(...categories.map(c => c.id)) + 1 : 1;
-        const newCat = { id: newId, name };
-        categories.push(newCat);
-        await saveCategoriesToSheet();
-        loadAll();
+        categories.push({ id: newId, name });
+        await saveCategoriesToDB();
+        renderCategoryList();
+        renderCategorySelect();
         document.getElementById('catName').value = '';
         alert('Đã thêm danh mục');
     }
 
-    // ==================== PRODUCTS CRUD (dùng replaceAll) ====================
-    async function saveProductsToSheet() {
-        await postToSheet('products', products, 'replaceAll');
+    // ==================== PRODUCTS CRUD ====================
+    async function saveProductsToDB() {
+        const obj = {};
+        products.forEach(p => obj[p.id] = p);
+        await db.ref('products').set(obj);
     }
     function renderProductList() {
         const container = document.getElementById('productList');
@@ -684,7 +787,7 @@
         let html = '';
         products.forEach(p => {
             const catName = categories.find(c => c.id == p.categoryId)?.name || '?';
-            html += `<div class="product-item" data-id="${p.id}">
+            html += `<div class="product-item">
                         <div style="display:flex; gap:10px; align-items:center;">
                             <img src="${p.imageUrl || 'https://via.placeholder.com/50'}" style="width:50px;height:50px;border-radius:20px;object-fit:cover;">
                             <div><strong>${escapeHtml(p.name)}</strong><br>${Number(p.price).toLocaleString('vi-VN')}₫<br>Danh mục: ${catName}<br>Tồn: ${p.stock}</div>
@@ -718,8 +821,8 @@
                 if (confirm('Xóa sản phẩm này?')) {
                     const id = parseInt(btn.dataset.id);
                     products = products.filter(p => p.id !== id);
-                    await saveProductsToSheet();
-                    loadAll();
+                    await saveProductsToDB();
+                    renderProductList();
                 }
             };
         });
@@ -752,8 +855,8 @@
             const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
             products.push({ id: newId, name, price, stock, imageUrl, categoryId });
         }
-        await saveProductsToSheet();
-        loadAll();
+        await saveProductsToDB();
+        renderProductList();
         clearProductForm();
         alert('Đã lưu sản phẩm');
     }
@@ -766,9 +869,11 @@
         document.getElementById('editId').value = '';
     }
 
-    // ==================== RENTALS CRUD (dùng replaceAll) ====================
-    async function saveRentalsToSheet() {
-        await postToSheet('rentals', rentItems, 'replaceAll');
+    // ==================== RENTALS CRUD ====================
+    async function saveRentalsToDB() {
+        const obj = {};
+        rentItems.forEach(r => obj[r.id] = r);
+        await db.ref('rentals').set(obj);
     }
     function renderRentalList() {
         const container = document.getElementById('rentalList');
@@ -776,7 +881,7 @@
         if (rentItems.length === 0) { container.innerHTML = '<p>Chưa có máy cho thuê.</p>'; return; }
         let html = '';
         rentItems.forEach(r => {
-            html += `<div class="rental-item" data-id="${r.id}">
+            html += `<div class="rental-item">
                         <div style="display:flex; gap:10px; align-items:center;">
                             <img src="${r.imageUrl || 'https://via.placeholder.com/50'}" style="width:50px;height:50px;border-radius:20px;object-fit:cover;">
                             <div><strong>${escapeHtml(r.name)}</strong><br>${Number(r.pricePerDay).toLocaleString('vi-VN')}₫/ngày<br>Tồn: ${r.stock}</div>
@@ -809,8 +914,8 @@
                 if (confirm('Xóa máy cho thuê này?')) {
                     const id = parseInt(btn.dataset.id);
                     rentItems = rentItems.filter(r => r.id !== id);
-                    await saveRentalsToSheet();
-                    loadAll();
+                    await saveRentalsToDB();
+                    renderRentalList();
                 }
             };
         });
@@ -842,8 +947,8 @@
             const newId = rentItems.length ? Math.max(...rentItems.map(r => r.id)) + 1 : 1;
             rentItems.push({ id: newId, name, pricePerDay: price, stock, imageUrl });
         }
-        await saveRentalsToSheet();
-        loadAll();
+        await saveRentalsToDB();
+        renderRentalList();
         clearRentalForm();
         alert('Đã lưu máy cho thuê');
     }
@@ -858,12 +963,12 @@
 
     // ==================== ORDERS ====================
     async function updateOrderStatus(orderId, newStatus) {
-        await postToSheet('orders', { id: orderId, status: newStatus }, 'updateOrderStatus');
-        loadAll();
+        await db.ref('orders/' + orderId).update({ status: newStatus });
+        loadOrders();
     }
     async function deleteOrder(orderId) {
-        await postToSheet('orders', { id: orderId }, 'deleteOrder');
-        loadAll();
+        await db.ref('orders/' + orderId).remove();
+        loadOrders();
     }
     function renderOrders() {
         const container = document.getElementById('ordersList');
@@ -874,21 +979,16 @@
             const statusClass = order.status === 'Đã duyệt' ? 'approved' : '';
             let itemsHtml = '';
             if (order.type === 'mua_hang') {
-                try {
-                    const items = JSON.parse(order.items);
-                    itemsHtml = items.map(i => `${i.name} x ${i.quantity}`).join(', ');
-                } catch(e) { itemsHtml = order.items; }
+                itemsHtml = order.items.map(i => `${i.name} x ${i.quantity}`).join(', ');
             } else {
-                try {
-                    const rental = JSON.parse(order.rental);
-                    itemsHtml = `Thuê ${rental.name} - ${rental.days} ngày - ${rental.total.toLocaleString('vi-VN')}₫`;
-                } catch(e) { itemsHtml = order.rental; }
+                itemsHtml = `Thuê ${order.rental.name} - ${order.rental.days} ngày - ${order.rental.total.toLocaleString('vi-VN')}₫`;
             }
             html += `<div class="order-item">
                         <div class="order-details">
                             <strong>Đơn #${order.id}</strong><br>
-                            Khách: ${order.customer_fullName} - ${order.customer_phone}<br>
-                            Địa chỉ: ${order.customer_address}<br>
+                            Khách: ${order.customer.fullName} - ${order.customer.phone}<br>
+                            Địa chỉ: ${order.customer.address}<br>
+                            ${order.customer.socialLink ? `Liên kết: <a href="${order.customer.socialLink}" target="_blank">${order.customer.socialLink}</a><br>` : ''}
                             Sản phẩm: ${itemsHtml}<br>
                             Tổng: <strong>${Number(order.total).toLocaleString('vi-VN')}₫</strong><br>
                             Ngày: ${new Date(order.createdAt).toLocaleString('vi-VN')}<br>
@@ -902,12 +1002,10 @@
         });
         container.innerHTML = html;
         document.querySelectorAll('.approve-order').forEach(btn => {
-            btn.onclick = async () => updateOrderStatus(btn.dataset.id, 'Đã duyệt');
+            btn.onclick = () => updateOrderStatus(btn.dataset.id, 'Đã duyệt');
         });
         document.querySelectorAll('.delete-order').forEach(btn => {
-            btn.onclick = async () => {
-                if (confirm('Xóa đơn hàng này?')) await deleteOrder(btn.dataset.id);
-            };
+            btn.onclick = () => { if (confirm('Xóa đơn hàng này?')) deleteOrder(btn.dataset.id); };
         });
     }
     function updateOrderBadge() {
@@ -919,7 +1017,7 @@
         }
     }
 
-    // ==================== UI HELPER ====================
+    // ==================== UI HELPERS ====================
     function updateSidebarTitle() {
         const title = document.getElementById('sidebarTitle');
         if (title && config.shopName) title.innerText = config.shopName;
@@ -934,34 +1032,27 @@
         if (ig) ig.href = config.instagramCheckout || '#';
     }
     function applyAdminTheme() {
-        const at = config.adminTheme ? JSON.parse(config.adminTheme) : {};
+        const at = config.adminTheme || {};
         const root = document.documentElement.style;
-        root.setProperty('--admin-bg', at.bg || '#e9e2d0');
-        root.setProperty('--admin-sidebar-bg', at.sidebarBg || '#2d2b1f');
-        root.setProperty('--admin-sidebar-text', at.sidebarText || '#ffecb3');
-        root.setProperty('--admin-content-bg', at.contentBg || '#fff6e8');
-        root.setProperty('--admin-border', at.border || '#1f1a10');
-        root.setProperty('--admin-btn', at.btn || '#f0bc6e');
+        root.setProperty('--admin-bg', at.bg);
+        root.setProperty('--admin-sidebar-bg', at.sidebarBg);
+        root.setProperty('--admin-sidebar-text', at.sidebarText);
+        root.setProperty('--admin-content-bg', at.contentBg);
+        root.setProperty('--admin-border', at.border);
+        root.setProperty('--admin-btn', at.btn);
     }
 
-    // ==================== ĐỔI TÀI KHOẢN ====================
-    async function changeAccount() {
-        const oldPass = document.getElementById('oldPassword').value;
-        const newUsername = document.getElementById('newUsername').value.trim();
+    // ==================== PASSWORD ====================
+    async function changePassword() {
+        const old = document.getElementById('oldPassword').value;
         const newPass = document.getElementById('newPassword').value;
         const confirm = document.getElementById('confirmPassword').value;
-        if (!oldPass) { alert('Vui lòng nhập mật khẩu hiện tại'); return; }
-        if (oldPass !== adminPassword) { alert('Mật khẩu hiện tại không đúng'); return; }
-        if (!newUsername && !newPass) { alert('Vui lòng nhập tên đăng nhập mới hoặc mật khẩu mới'); return; }
-        if (newPass && newPass !== confirm) { alert('Mật khẩu mới không khớp'); return; }
-        if (newPass && newPass.length < 4) { alert('Mật khẩu mới phải có ít nhất 4 ký tự'); return; }
-        if (newUsername) {
-            await postToSheet('config', { key: 'adminUsername', value: newUsername });
-        }
-        if (newPass) {
-            await postToSheet('config', { key: 'adminPassword', value: newPass });
-        }
-        alert('Cập nhật tài khoản thành công! Vui lòng đăng nhập lại.');
+        if (!old || !newPass || !confirm) { alert('Vui lòng nhập đầy đủ'); return; }
+        if (old !== adminPassword) { alert('Mật khẩu cũ không đúng'); return; }
+        if (newPass !== confirm) { alert('Mật khẩu mới không khớp'); return; }
+        if (newPass.length < 4) { alert('Mật khẩu mới phải có ít nhất 4 ký tự'); return; }
+        await db.ref('config').update({ adminPassword: newPass });
+        alert('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
         sessionStorage.removeItem('admin_auth');
         location.reload();
     }
@@ -976,6 +1067,16 @@
             document.getElementById('loginSection').style.display = 'flex';
             document.getElementById('adminApp').style.display = 'none';
         }
+    }
+    async function loadAll() {
+        await initializeDefaultData();
+        await loadConfig();
+        await loadCategories();
+        await loadProducts();
+        await loadRentals();
+        await loadOrders();
+        showBannerPreview();
+        showPaymentImagePreviews();
     }
 
     // ==================== FONT LIST ====================
@@ -1021,15 +1122,15 @@
             if (target) target.classList.add('active');
             document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
             link.classList.add('active');
-            if (sec === 'orders') loadAll();
+            if (sec === 'orders') loadOrders();
         });
     });
     document.querySelector('.sidebar nav a').classList.add('active');
 
     // ==================== EVENT LISTENERS ====================
     document.getElementById('doLogin')?.addEventListener('click', async () => {
-        const username = document.getElementById('loginUsername').value;
-        const pwd = document.getElementById('loginPassword').value;
+        const username = document.getElementById('username').value;
+        const pwd = document.getElementById('password').value;
         if (username === adminUsername && pwd === adminPassword) {
             sessionStorage.setItem('admin_auth', 'true');
             checkAuth();
@@ -1054,7 +1155,7 @@
     document.getElementById('addCatBtn')?.addEventListener('click', addCategory);
     document.getElementById('addOrUpdateBtn')?.addEventListener('click', addOrUpdateProduct);
     document.getElementById('addRentBtn')?.addEventListener('click', addRentItem);
-    document.getElementById('changePasswordBtn')?.addEventListener('click', changeAccount);
+    document.getElementById('changePasswordBtn')?.addEventListener('click', changePassword);
     document.getElementById('logoUpload')?.addEventListener('change', (e) => {
         if (e.target.files[0]) {
             const reader = new FileReader();
