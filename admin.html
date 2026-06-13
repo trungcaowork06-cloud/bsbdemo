@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600&family=Poppins:wght@400;600&family=Roboto:wght@400;500;700&family=Nunito:wght@400;600;700&family=Open+Sans:wght@400;600&family=Noto+Sans:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;600&family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&family=Montserrat:wght@400;500;600&family=Source+Sans+3:wght@400;600&family=Playfair+Display:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* CSS giống hệt bản admin trước (giữ nguyên) */
+        /* giữ nguyên CSS như bản trước */
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Quicksand',sans-serif; }
         body { background: var(--admin-bg, #e9e2d0); display: flex; min-height: 100vh; }
         :root {
@@ -72,7 +72,7 @@
         .order-details { flex: 1; }
         .order-status { font-weight: bold; padding: 4px 12px; border-radius: 40px; background: #ffc107; color: #333; }
         .order-status.approved { background: #28a745; color: white; }
-        .login-form { max-width: 360px; margin: 2rem auto; text-align: center; background: #fff6e8; padding: 2rem; border-radius: 60px; border: 4px solid #1f1a10; }
+        .login-form { max-width: 400px; margin: 2rem auto; text-align: center; background: #fff6e8; padding: 2rem; border-radius: 60px; border: 4px solid #1f1a10; }
         .payment-image-preview { max-width: 200px; max-height: 300px; border-radius: 20px; margin-top: 8px; border: 2px solid #9b7a4a; }
         .grid-2cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         hr { margin: 1rem 0; border: 1px dashed #c0aa7a; }
@@ -99,9 +99,9 @@
 <body>
 <div id="loginSection" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:#e9e2d0; z-index:2000; justify-content:center; align-items:center;">
     <div class="login-form">
-        <h2>🔐 Đăng nhập</h2>
-        <input type="text" id="username" value="admin" disabled><br><br>
-        <input type="password" id="password" placeholder="Mật khẩu"><br><br>
+        <h2>🔐 Đăng nhập quản trị</h2>
+        <input type="text" id="loginUsername" placeholder="Tên đăng nhập"><br><br>
+        <input type="password" id="loginPassword" placeholder="Mật khẩu"><br><br>
         <button id="doLogin">Đăng nhập</button>
     </div>
 </div>
@@ -214,10 +214,12 @@
             <!-- ========== ĐỔI MẬT KHẨU ========== -->
             <div id="section-password" class="section">
                 <h2>🔒 Đổi mật khẩu quản trị</h2>
+                <div class="form-group"><label>Tên đăng nhập hiện tại</label><input type="text" id="currentUsername" readonly style="background:#e9e2d0;"></div>
                 <div class="form-group"><label>Mật khẩu hiện tại</label><input type="password" id="oldPassword" placeholder="Mật khẩu cũ"></div>
+                <div class="form-group"><label>Tên đăng nhập mới</label><input type="text" id="newUsername" placeholder="Tên đăng nhập mới"></div>
                 <div class="form-group"><label>Mật khẩu mới</label><input type="password" id="newPassword" placeholder="Mật khẩu mới"></div>
                 <div class="form-group"><label>Xác nhận mật khẩu mới</label><input type="password" id="confirmPassword" placeholder="Nhập lại"></div>
-                <button id="changePasswordBtn">💾 Đổi mật khẩu</button>
+                <button id="changePasswordBtn">💾 Cập nhật tài khoản</button>
             </div>
 
             <!-- ========== THANH TOÁN & FOOTER ========== -->
@@ -323,14 +325,16 @@
     let products = [];
     let rentItems = [];
     let orders = [];
-    let adminPassword = 'admin123'; // sẽ được đọc từ config (key: adminPassword)
+    let adminUsername = 'admin';
+    let adminPassword = 'admin123';
 
     // ==================== TẢI DỮ LIỆU ====================
     async function loadAll() {
-        // Load config (dạng key-value)
+        // Load config
         const configRows = await fetchSheetData('config');
         config = {};
         configRows.forEach(row => { config[row.key] = row.value; });
+        if (config.adminUsername) adminUsername = config.adminUsername;
         if (config.adminPassword) adminPassword = config.adminPassword;
         categories = await fetchSheetData('categories');
         products = await fetchSheetData('products');
@@ -354,6 +358,7 @@
         updateAdminTitle();
         updateSocialLinks();
         applyAdminTheme();
+        document.getElementById('currentUsername').value = adminUsername;
     }
 
     // ==================== CÁC HÀM FILL FORM ====================
@@ -576,12 +581,9 @@
         if (area) area.innerHTML = config.mainBannerUrl ? `<img src="${config.mainBannerUrl}" style="max-width:200px; border-radius:20px;">` : '<p>Chưa có banner</p>';
     }
 
-    // ==================== CATEGORIES CRUD ====================
+    // ==================== CATEGORIES CRUD (dùng replaceAll) ====================
     async function saveCategoriesToSheet() {
-        // Ghi lại toàn bộ danh sách categories lên sheet
-        for (let cat of categories) {
-            await postToSheet('categories', cat);
-        }
+        await postToSheet('categories', categories, 'replaceAll');
     }
     function renderCategoryList() {
         const container = document.getElementById('catList');
@@ -610,8 +612,7 @@
                 if (idx > 0) {
                     [categories[idx-1], categories[idx]] = [categories[idx], categories[idx-1]];
                     await saveCategoriesToSheet();
-                    renderCategoryList();
-                    renderCategorySelect();
+                    loadAll();
                 }
             };
         });
@@ -622,8 +623,7 @@
                 if (idx < categories.length-1) {
                     [categories[idx+1], categories[idx]] = [categories[idx], categories[idx+1]];
                     await saveCategoriesToSheet();
-                    renderCategoryList();
-                    renderCategorySelect();
+                    loadAll();
                 }
             };
         });
@@ -635,8 +635,7 @@
                 if (newName && newName.trim()) {
                     cat.name = newName.trim();
                     await saveCategoriesToSheet();
-                    renderCategoryList();
-                    renderCategorySelect();
+                    loadAll();
                 }
             };
         });
@@ -646,8 +645,7 @@
                     const id = parseInt(btn.dataset.id);
                     categories = categories.filter(c => c.id !== id);
                     await saveCategoriesToSheet();
-                    renderCategoryList();
-                    renderCategorySelect();
+                    loadAll();
                 }
             };
         });
@@ -670,17 +668,14 @@
         const newCat = { id: newId, name };
         categories.push(newCat);
         await saveCategoriesToSheet();
-        renderCategoryList();
-        renderCategorySelect();
+        loadAll();
         document.getElementById('catName').value = '';
         alert('Đã thêm danh mục');
     }
 
-    // ==================== PRODUCTS CRUD ====================
+    // ==================== PRODUCTS CRUD (dùng replaceAll) ====================
     async function saveProductsToSheet() {
-        for (let p of products) {
-            await postToSheet('products', p);
-        }
+        await postToSheet('products', products, 'replaceAll');
     }
     function renderProductList() {
         const container = document.getElementById('productList');
@@ -724,7 +719,7 @@
                     const id = parseInt(btn.dataset.id);
                     products = products.filter(p => p.id !== id);
                     await saveProductsToSheet();
-                    renderProductList();
+                    loadAll();
                 }
             };
         });
@@ -758,7 +753,7 @@
             products.push({ id: newId, name, price, stock, imageUrl, categoryId });
         }
         await saveProductsToSheet();
-        renderProductList();
+        loadAll();
         clearProductForm();
         alert('Đã lưu sản phẩm');
     }
@@ -771,11 +766,9 @@
         document.getElementById('editId').value = '';
     }
 
-    // ==================== RENTALS CRUD ====================
+    // ==================== RENTALS CRUD (dùng replaceAll) ====================
     async function saveRentalsToSheet() {
-        for (let r of rentItems) {
-            await postToSheet('rentals', r);
-        }
+        await postToSheet('rentals', rentItems, 'replaceAll');
     }
     function renderRentalList() {
         const container = document.getElementById('rentalList');
@@ -817,7 +810,7 @@
                     const id = parseInt(btn.dataset.id);
                     rentItems = rentItems.filter(r => r.id !== id);
                     await saveRentalsToSheet();
-                    renderRentalList();
+                    loadAll();
                 }
             };
         });
@@ -850,7 +843,7 @@
             rentItems.push({ id: newId, name, pricePerDay: price, stock, imageUrl });
         }
         await saveRentalsToSheet();
-        renderRentalList();
+        loadAll();
         clearRentalForm();
         alert('Đã lưu máy cho thuê');
     }
@@ -866,7 +859,7 @@
     // ==================== ORDERS ====================
     async function updateOrderStatus(orderId, newStatus) {
         await postToSheet('orders', { id: orderId, status: newStatus }, 'updateOrderStatus');
-        loadAll(); // reload
+        loadAll();
     }
     async function deleteOrder(orderId) {
         await postToSheet('orders', { id: orderId }, 'deleteOrder');
@@ -951,17 +944,24 @@
         root.setProperty('--admin-btn', at.btn || '#f0bc6e');
     }
 
-    // ==================== PASSWORD ====================
-    async function changePassword() {
-        const old = document.getElementById('oldPassword').value;
+    // ==================== ĐỔI TÀI KHOẢN ====================
+    async function changeAccount() {
+        const oldPass = document.getElementById('oldPassword').value;
+        const newUsername = document.getElementById('newUsername').value.trim();
         const newPass = document.getElementById('newPassword').value;
         const confirm = document.getElementById('confirmPassword').value;
-        if (!old || !newPass || !confirm) { alert('Vui lòng nhập đầy đủ'); return; }
-        if (old !== adminPassword) { alert('Mật khẩu cũ không đúng'); return; }
-        if (newPass !== confirm) { alert('Mật khẩu mới không khớp'); return; }
-        if (newPass.length < 4) { alert('Mật khẩu mới phải có ít nhất 4 ký tự'); return; }
-        await postToSheet('config', { key: 'adminPassword', value: newPass });
-        alert('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
+        if (!oldPass) { alert('Vui lòng nhập mật khẩu hiện tại'); return; }
+        if (oldPass !== adminPassword) { alert('Mật khẩu hiện tại không đúng'); return; }
+        if (!newUsername && !newPass) { alert('Vui lòng nhập tên đăng nhập mới hoặc mật khẩu mới'); return; }
+        if (newPass && newPass !== confirm) { alert('Mật khẩu mới không khớp'); return; }
+        if (newPass && newPass.length < 4) { alert('Mật khẩu mới phải có ít nhất 4 ký tự'); return; }
+        if (newUsername) {
+            await postToSheet('config', { key: 'adminUsername', value: newUsername });
+        }
+        if (newPass) {
+            await postToSheet('config', { key: 'adminPassword', value: newPass });
+        }
+        alert('Cập nhật tài khoản thành công! Vui lòng đăng nhập lại.');
         sessionStorage.removeItem('admin_auth');
         location.reload();
     }
@@ -1028,11 +1028,12 @@
 
     // ==================== EVENT LISTENERS ====================
     document.getElementById('doLogin')?.addEventListener('click', async () => {
-        const pwd = document.getElementById('password').value;
-        if (pwd === adminPassword) {
+        const username = document.getElementById('loginUsername').value;
+        const pwd = document.getElementById('loginPassword').value;
+        if (username === adminUsername && pwd === adminPassword) {
             sessionStorage.setItem('admin_auth', 'true');
             checkAuth();
-        } else alert('Sai mật khẩu!');
+        } else alert('Sai tên đăng nhập hoặc mật khẩu!');
     });
     document.getElementById('logoutBtnSidebar')?.addEventListener('click', () => {
         sessionStorage.removeItem('admin_auth');
@@ -1053,7 +1054,7 @@
     document.getElementById('addCatBtn')?.addEventListener('click', addCategory);
     document.getElementById('addOrUpdateBtn')?.addEventListener('click', addOrUpdateProduct);
     document.getElementById('addRentBtn')?.addEventListener('click', addRentItem);
-    document.getElementById('changePasswordBtn')?.addEventListener('click', changePassword);
+    document.getElementById('changePasswordBtn')?.addEventListener('click', changeAccount);
     document.getElementById('logoUpload')?.addEventListener('change', (e) => {
         if (e.target.files[0]) {
             const reader = new FileReader();
