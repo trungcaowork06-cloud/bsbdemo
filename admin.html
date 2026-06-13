@@ -2,16 +2,14 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Quản trị - FilmStore Pro</title>
-    <!-- Thêm font iCiel Crocante (cần tải file font về hoặc dùng fallback) -->
     <style>
         @font-face {
             font-family: 'iCiel Crocante';
             src: url('https://fonts.cdnfonts.com/css/iciel-crocante') format('woff2');
             font-weight: normal;
             font-style: normal;
-            /* Nếu không tải được, fallback là cursive */
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600&family=Poppins:wght@400;600&family=Roboto:wght@400;500;700&family=Nunito:wght@400;600;700&family=Open+Sans:wght@400;600&family=Noto+Sans:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;600&family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&family=Montserrat:wght@400;500;600&family=Source+Sans+3:wght@400;600&family=Playfair+Display:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
@@ -37,6 +35,10 @@
             color: var(--admin-sidebar-text);
             padding: 1.5rem 1rem;
             border-right: 4px solid var(--admin-border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.2s;
         }
         .sidebar h2 {
             font-family: 'Fredoka One', cursive;
@@ -46,12 +48,52 @@
             color: #ffc857;
             word-break: break-word;
         }
+        .sidebar nav {
+            flex: 1;
+        }
         .sidebar nav a {
             display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin: 8px 0;
             background: #3f3c2e; border-radius: 40px; text-decoration: none; color: var(--admin-sidebar-text);
             font-weight: bold; border: 1px solid #6b5a3e;
+            position: relative;
         }
         .sidebar nav a:hover, .sidebar nav a.active { background: var(--admin-btn); color: #2d2b1f; box-shadow: 3px 3px 0 var(--admin-border); }
+        .notification-badge {
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 30px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            margin-left: auto;
+        }
+        .sidebar-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #6b5a3e;
+        }
+        .social-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .social-links a {
+            color: var(--admin-sidebar-text);
+            font-size: 1.4rem;
+            transition: 0.2s;
+        }
+        .social-links a:hover { color: var(--admin-btn); }
+        .logout-btn {
+            background: #b45a3b;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            border: none;
+        }
         .main-content { flex: 1; padding: 1.5rem; overflow-y: auto; }
         .admin-panel { background: var(--admin-content-bg); border-radius: 48px; border: 4px solid var(--admin-border); padding: 1.5rem; box-shadow: 12px 12px 0 #bbaa7a; }
         .section { display: none; }
@@ -60,26 +102,45 @@
         .form-group { margin-bottom: 1rem; }
         label { font-weight: 700; display: block; margin-bottom: 5px; }
         input, textarea, button, select { padding: 8px 14px; border-radius: 60px; border: 2px solid #2b241a; font-weight: bold; margin-right: 8px; margin-top: 5px; background: white; }
+        textarea { border-radius: 24px; }
         button { background: var(--admin-btn); cursor: pointer; box-shadow: 3px 3px 0 #6b4c2c; transition: 0.05s linear; }
         button:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 #6b4c2c; }
         .color-input { width: 60px; height: 40px; }
         .preview-img { max-width: 100px; border-radius: 20px; margin-top: 8px; }
-        .product-list, .cat-list, .rental-list { margin-top: 1rem; }
-        .product-item, .cat-item, .rental-item {
+        .product-list, .cat-list, .rental-list, .orders-list { margin-top: 1rem; }
+        .product-item, .cat-item, .rental-item, .order-item {
             display: flex; justify-content: space-between; align-items: center;
-            background: #f9f2e0; padding: 8px 16px; border-radius: 60px; margin-bottom: 10px; border: 2px solid #9b7a4a;
+            background: #f9f2e0; padding: 12px 16px; border-radius: 60px; margin-bottom: 12px; border: 2px solid #9b7a4a;
+            flex-wrap: wrap;
+            gap: 10px;
         }
+        .order-details { flex: 1; }
+        .order-status {
+            font-weight: bold; padding: 4px 12px; border-radius: 40px;
+            background: #ffc107; color: #333;
+        }
+        .order-status.approved { background: #28a745; color: white; }
         .login-form { max-width: 360px; margin: 2rem auto; text-align: center; background: #fff6e8; padding: 2rem; border-radius: 60px; border: 4px solid #1f1a10; }
-        @media (max-width: 800px) { body { flex-direction: column; } .sidebar { width: 100%; text-align: center; } }
         .payment-image-preview { max-width: 200px; max-height: 300px; border-radius: 20px; margin-top: 8px; border: 2px solid #9b7a4a; }
-        .grid-2cols {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+        .grid-2cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        hr { margin: 1rem 0; border: 1px dashed #c0aa7a; }
+        /* Responsive cho mobile */
+        @media (max-width: 880px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; padding: 1rem; border-right: none; border-bottom: 4px solid var(--admin-border); flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+            .sidebar h2 { margin-bottom: 0; font-size: 1.2rem; }
+            .sidebar nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+            .sidebar nav a { margin: 0; padding: 6px 12px; font-size: 0.8rem; }
+            .sidebar-footer { display: flex; gap: 10px; align-items: center; margin-top: 0; padding-top: 0; border-top: none; }
+            .social-links { margin-bottom: 0; }
+            .logout-btn { width: auto; padding: 6px 12px; }
+            .main-content { padding: 1rem; }
+            .admin-panel { padding: 1rem; border-radius: 32px; }
+            .grid-2cols { grid-template-columns: 1fr; }
         }
-        hr {
-            margin: 1rem 0;
-            border: 1px dashed #c0aa7a;
+        @media (max-width: 480px) {
+            .sidebar nav a { padding: 4px 8px; font-size: 0.7rem; }
+            .product-item, .cat-item, .rental-item, .order-item { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
@@ -90,39 +151,59 @@
         <input type="text" id="username" value="admin" disabled style="background:#e9e2d0;"><br><br>
         <input type="password" id="password" placeholder="Mật khẩu"><br><br>
         <button id="doLogin">Đăng nhập</button>
-        <!-- Đã xóa dòng "Mật khẩu mặc định: admin123" -->
     </div>
 </div>
 
 <div id="adminApp" style="display: flex; width: 100%;">
     <div class="sidebar">
-        <h2 id="sidebarTitle">Cartoon Admin</h2>
-        <nav>
-            <a href="#" data-section="general"><i class="fas fa-home"></i> Tổng quan</a>
-            <a href="#" data-section="color"><i class="fas fa-palette"></i> Màu sắc web</a>
-            <a href="#" data-section="admincolor"><i class="fas fa-paintbrush"></i> Màu quản trị</a>
-            <a href="#" data-section="font"><i class="fas fa-font"></i> Font chữ & cỡ</a>
-            <a href="#" data-section="password"><i class="fas fa-key"></i> Đổi mật khẩu</a>
-            <a href="#" data-section="payment"><i class="fas fa-credit-card"></i> Thanh toán & footer</a>
-            <a href="#" data-section="paymentImages"><i class="fas fa-image"></i> Ảnh thanh toán</a>
-            <a href="#" data-section="banner"><i class="fas fa-image"></i> Banner</a>
-            <a href="#" data-section="category"><i class="fas fa-list"></i> Danh mục</a>
-            <a href="#" data-section="product"><i class="fas fa-box"></i> Sản phẩm</a>
-            <a href="#" data-section="rental"><i class="fas fa-camera"></i> Cho thuê máy</a>
-        </nav>
+        <div>
+            <h2 id="sidebarTitle">Cartoon Admin</h2>
+            <nav>
+                <a href="#" data-section="general"><i class="fas fa-home"></i> Tổng quan</a>
+                <a href="#" data-section="color"><i class="fas fa-palette"></i> Màu sắc web</a>
+                <a href="#" data-section="admincolor"><i class="fas fa-paintbrush"></i> Màu quản trị</a>
+                <a href="#" data-section="font"><i class="fas fa-font"></i> Font chữ & cỡ</a>
+                <a href="#" data-section="password"><i class="fas fa-key"></i> Đổi mật khẩu</a>
+                <a href="#" data-section="payment"><i class="fas fa-credit-card"></i> Thanh toán & footer</a>
+                <a href="#" data-section="paymentImages"><i class="fas fa-image"></i> Ảnh thanh toán</a>
+                <a href="#" data-section="banner"><i class="fas fa-image"></i> Banner</a>
+                <a href="#" data-section="category"><i class="fas fa-list"></i> Danh mục</a>
+                <a href="#" data-section="product"><i class="fas fa-box"></i> Sản phẩm</a>
+                <a href="#" data-section="rental"><i class="fas fa-camera"></i> Cho thuê máy</a>
+                <a href="#" data-section="orders" id="ordersMenuLink">
+                    <i class="fas fa-truck"></i> Đơn hàng
+                    <span id="orderNotificationBadge" class="notification-badge" style="display: none;">0</span>
+                </a>
+            </nav>
+        </div>
+        <div class="sidebar-footer">
+            <div class="social-links">
+                <a href="#" target="_blank" id="adminFbLink"><i class="fab fa-facebook"></i></a>
+                <a href="#" target="_blank" id="adminIgLink"><i class="fab fa-instagram"></i></a>
+            </div>
+            <button id="logoutBtnSidebar" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+        </div>
     </div>
     <div class="main-content">
         <div class="admin-panel">
-            <!-- Tổng quan -->
+            <!-- TỔNG QUAN (có thêm các trường mới) -->
             <div id="section-general" class="section active">
                 <h2>📌 Cấu hình chung</h2>
                 <div class="form-group"><label>Tên shop</label><input type="text" id="shopNameInput"></div>
                 <div class="form-group"><label>Logo (URL / upload)</label><input type="text" id="logoUrlInput"><input type="file" id="logoUpload" accept="image/*"><img id="logoPreview" class="preview-img" style="display:none;"></div>
                 <div class="form-group"><label>Nút thuê máy ảnh (văn bản)</label><input type="text" id="rentButtonLabelInput" placeholder="📸 Thuê máy ảnh"></div>
-                <button id="saveGeneralBtn">💾 Lưu chung</button>
+                <hr>
+                <h3>🔔 Thông báo trang chủ</h3>
+                <div class="form-group"><label>Nội dung thông báo (có thể xuống dòng)</label><textarea id="notificationTextInput" rows="3" placeholder="🎉 Chào mừng bạn đến với FilmStore! 🎉&#10;🎞️ Cửa hàng phim và máy ảnh chất lượng. Giao hàng toàn quốc."></textarea></div>
+                <div class="form-group"><label>Màu nền thông báo</label><input type="color" id="notificationBgInput" class="color-input"></div>
+                <hr>
+                <h3>📱 Liên kết hỗ trợ (Facebook/Instagram)</h3>
+                <div class="form-group"><label>Facebook hỗ trợ</label><input type="url" id="supportFacebookInput" placeholder="https://facebook.com/shop"></div>
+                <div class="form-group"><label>Instagram hỗ trợ</label><input type="url" id="supportInstagramInput" placeholder="https://instagram.com/shop"></div>
+                <button id="saveGeneralBtn">💾 Lưu tất cả cấu hình chung</button>
             </div>
 
-            <!-- Màu sắc trang chủ -->
+            <!-- CÁC SECTION KHÁC (giữ nguyên nội dung từ bản trước) -->
             <div id="section-color" class="section">
                 <h2>🎨 Màu sắc trang chủ</h2>
                 <div class="form-group"><label>Màu nền</label><input type="color" id="bgBody" class="color-input"></div>
@@ -137,7 +218,6 @@
                 <button id="resetColorBtn" style="background:#d98c5f;">🔄 Reset mặc định</button>
             </div>
 
-            <!-- Màu quản trị -->
             <div id="section-admincolor" class="section">
                 <h2>🖌️ Màu trang quản trị</h2>
                 <div class="form-group"><label>Nền tổng</label><input type="color" id="adminBg" class="color-input"></div>
@@ -149,11 +229,10 @@
                 <button id="saveAdminColorBtn">💾 Lưu màu quản trị</button>
             </div>
 
-            <!-- Font chữ & cỡ chữ - có thêm iCiel Crocante -->
             <div id="section-font" class="section">
                 <h2>🔤 Font chữ & cỡ chữ</h2>
                 <div class="grid-2cols">
-                    <div class="form-group"><label>Font chính (toàn trang)</label><select id="mainFontSelect"></select></div>
+                    <div class="form-group"><label>Font chính</label><select id="mainFontSelect"></select></div>
                     <div class="form-group"><label>Font tên shop</label><select id="headerFontSelect"></select></div>
                     <div class="form-group"><label>Font danh mục</label><select id="categoryFontSelect"></select></div>
                     <div class="form-group"><label>Font tên sản phẩm</label><select id="productNameFontSelect"></select></div>
@@ -164,19 +243,18 @@
                 </div>
                 <hr>
                 <div class="grid-2cols">
-                    <div class="form-group"><label>Cỡ chữ cơ bản (px)</label><input type="number" id="baseFontSize" min="12" max="20" value="16"></div>
-                    <div class="form-group"><label>Cỡ chữ tên sản phẩm (px)</label><input type="number" id="productNameSize" min="16" max="30" value="20"></div>
-                    <div class="form-group"><label>Cỡ chữ giá (px)</label><input type="number" id="productPriceSize" min="18" max="32" value="22"></div>
-                    <div class="form-group"><label>Cỡ chữ tiêu đề giỏ (px)</label><input type="number" id="cartTitleSize" min="20" max="36" value="26"></div>
-                    <div class="form-group"><label>Cỡ chữ nút bấm (px)</label><input type="number" id="buttonFontSize" min="12" max="20" value="16"></div>
-                    <div class="form-group"><label>Cỡ chữ danh mục (px)</label><input type="number" id="categoryFontSize" min="12" max="22" value="16"></div>
-                    <div class="form-group"><label>Cỡ chữ footer (px)</label><input type="number" id="footerFontSize" min="10" max="18" value="14"></div>
+                    <div class="form-group"><label>Cỡ cơ bản (px)</label><input type="number" id="baseFontSize" min="12" max="20" value="16"></div>
+                    <div class="form-group"><label>Cỡ tên sản phẩm (px)</label><input type="number" id="productNameSize" min="16" max="30" value="20"></div>
+                    <div class="form-group"><label>Cỡ giá (px)</label><input type="number" id="productPriceSize" min="18" max="32" value="22"></div>
+                    <div class="form-group"><label>Cỡ tiêu đề giỏ (px)</label><input type="number" id="cartTitleSize" min="20" max="36" value="26"></div>
+                    <div class="form-group"><label>Cỡ nút (px)</label><input type="number" id="buttonFontSize" min="12" max="20" value="16"></div>
+                    <div class="form-group"><label>Cỡ danh mục (px)</label><input type="number" id="categoryFontSize" min="12" max="22" value="16"></div>
+                    <div class="form-group"><label>Cỡ footer (px)</label><input type="number" id="footerFontSize" min="10" max="18" value="14"></div>
                     <div class="form-group"><label>Độ đậm chữ sản phẩm</label><select id="productWeight"><option value="400">Normal (400)</option><option value="500">Medium (500)</option><option value="600">Semi-bold (600)</option><option value="700" selected>Bold (700)</option></select></div>
                 </div>
                 <button id="saveFontBtn">💾 Lưu font chữ</button>
             </div>
 
-            <!-- Đổi mật khẩu admin -->
             <div id="section-password" class="section">
                 <h2>🔒 Đổi mật khẩu quản trị</h2>
                 <div class="form-group"><label>Mật khẩu hiện tại</label><input type="password" id="oldPassword" placeholder="Nhập mật khẩu cũ"></div>
@@ -185,56 +263,54 @@
                 <button id="changePasswordBtn">💾 Đổi mật khẩu</button>
             </div>
 
-            <!-- Thanh toán & footer -->
             <div id="section-payment" class="section">
                 <h2>💳 Nội dung thanh toán & footer</h2>
                 <div class="form-group"><label>Văn bản modal thanh toán</label><textarea id="paymentText" rows="3"></textarea></div>
-                <div class="form-group"><label>Facebook link</label><input type="url" id="fbLinkInput"></div>
-                <div class="form-group"><label>Instagram link</label><input type="url" id="igLinkInput"></div>
+                <div class="form-group"><label>Facebook link (thanh toán)</label><input type="url" id="fbLinkInput"></div>
+                <div class="form-group"><label>Instagram link (thanh toán)</label><input type="url" id="igLinkInput"></div>
                 <div class="form-group"><label>Nội dung footer</label><input type="text" id="footerTextInput"></div>
                 <button id="savePaymentBtn">💾 Lưu</button>
             </div>
 
-            <!-- Ảnh thanh toán -->
             <div id="section-paymentImages" class="section">
                 <h2>🖼️ Ảnh thanh toán (QR, hướng dẫn)</h2>
-                <div class="form-group"><label>Ảnh cho giỏ hàng (URL hoặc upload)</label><input type="text" id="paymentImageCartUrl"><input type="file" id="paymentImageCartUpload" accept="image/*"><button id="savePaymentImageCartBtn">Lưu ảnh giỏ hàng</button><button id="clearPaymentImageCartBtn">Xóa ảnh</button><div id="paymentImageCartPreview"></div></div>
-                <div class="form-group"><label>Ảnh cho thuê máy (URL hoặc upload)</label><input type="text" id="paymentImageRentUrl"><input type="file" id="paymentImageRentUpload" accept="image/*"><button id="savePaymentImageRentBtn">Lưu ảnh thuê máy</button><button id="clearPaymentImageRentBtn">Xóa ảnh</button><div id="paymentImageRentPreview"></div></div>
+                <div class="form-group"><label>Ảnh giỏ hàng (URL / upload)</label><input type="text" id="paymentImageCartUrl"><input type="file" id="paymentImageCartUpload" accept="image/*"><button id="savePaymentImageCartBtn">Lưu</button><button id="clearPaymentImageCartBtn">Xóa</button><div id="paymentImageCartPreview"></div></div>
+                <div class="form-group"><label>Ảnh thuê máy (URL / upload)</label><input type="text" id="paymentImageRentUrl"><input type="file" id="paymentImageRentUpload" accept="image/*"><button id="savePaymentImageRentBtn">Lưu</button><button id="clearPaymentImageRentBtn">Xóa</button><div id="paymentImageRentPreview"></div></div>
             </div>
 
-            <!-- Banner -->
             <div id="section-banner" class="section">
                 <h2>🖼️ Banner chính</h2>
                 <div class="form-group"><input type="text" id="bannerUrlInput" placeholder="URL ảnh"><input type="file" id="bannerUpload" accept="image/*"><button id="updateBannerBtn">Cập nhật</button><div id="bannerPreviewArea"></div></div>
             </div>
 
-            <!-- Danh mục -->
             <div id="section-category" class="section">
                 <h2>📂 Danh mục</h2>
                 <div class="form-group"><input type="text" id="catName" placeholder="Tên mới"><button id="addCatBtn">➕ Thêm</button></div>
                 <div id="catList" class="cat-list"></div>
             </div>
 
-            <!-- Sản phẩm -->
             <div id="section-product" class="section">
                 <h2>📦 Sản phẩm (có tồn kho)</h2>
                 <div style="display:flex; flex-wrap:wrap; gap:8px;"><input type="text" id="prodName" placeholder="Tên"><input type="number" id="prodPrice" placeholder="Giá"><input type="number" id="prodStock" placeholder="Tồn kho"><input type="text" id="prodImage" placeholder="URL ảnh"><input type="file" id="prodImageFile" accept="image/*"><select id="prodCategory"></select><button id="addOrUpdateBtn">💾 Lưu</button><input type="hidden" id="editId"></div>
                 <div id="productList" class="product-list"></div>
             </div>
 
-            <!-- Cho thuê máy -->
             <div id="section-rental" class="section">
                 <h2>📸 Quản lý máy cho thuê</h2>
                 <div style="display:flex; flex-wrap:wrap; gap:8px;"><input type="text" id="rentName" placeholder="Tên máy"><input type="number" id="rentPrice" placeholder="Giá/ngày"><input type="number" id="rentStock" placeholder="Số lượng"><input type="text" id="rentImage" placeholder="URL ảnh"><input type="file" id="rentImageFile" accept="image/*"><button id="addRentBtn">➕ Thêm máy</button><input type="hidden" id="editRentId"></div>
                 <div id="rentalList" class="rental-list"></div>
             </div>
-            <button id="logoutBtn" style="margin-top:1rem; background:#b45a3b;">🚪 Đăng xuất</button>
+
+            <div id="section-orders" class="section">
+                <h2>📦 Quản lý đơn hàng</h2>
+                <div id="ordersList" class="orders-list"></div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    // Danh sách font chữ hỗ trợ tiếng Việt (bao gồm iCiel Crocante)
+    // ==================== DANH SÁCH FONT ====================
     const fontOptions = [
         { value: "'Quicksand', sans-serif", name: "Quicksand" },
         { value: "'Poppins', sans-serif", name: "Poppins" },
@@ -273,12 +349,8 @@
 
     function loadAdminPassword() {
         const stored = localStorage.getItem('admin_password_hash');
-        if (stored) {
-            adminPassword = atob(stored);
-        } else {
-            localStorage.setItem('admin_password_hash', btoa('admin123'));
-            adminPassword = 'admin123';
-        }
+        if (stored) adminPassword = atob(stored);
+        else { localStorage.setItem('admin_password_hash', btoa('admin123')); adminPassword = 'admin123'; }
     }
 
     function saveAdminPassword(newPass) {
@@ -290,8 +362,7 @@
     }
 
     function checkAuth() {
-        const storedAuth = sessionStorage.getItem('admin_auth');
-        if (storedAuth === 'true') {
+        if (sessionStorage.getItem('admin_auth') === 'true') {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('adminApp').style.display = 'flex';
             loadAllData();
@@ -304,12 +375,75 @@
 
     function updateSidebarTitle() {
         const titleSpan = document.getElementById('sidebarTitle');
-        if (titleSpan && config.shopName) {
-            titleSpan.innerText = config.shopName;
+        if (titleSpan && config.shopName) titleSpan.innerText = config.shopName;
+    }
+
+    function updateSocialLinks() {
+        const fbLink = document.getElementById('adminFbLink');
+        const igLink = document.getElementById('adminIgLink');
+        if (fbLink) fbLink.href = config.facebookCheckout || '#';
+        if (igLink) igLink.href = config.instagramCheckout || '#';
+    }
+
+    function updateOrderBadge() {
+        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        const pendingCount = orders.filter(o => o.status === 'Chờ duyệt').length;
+        const badge = document.getElementById('orderNotificationBadge');
+        if (badge) {
+            if (pendingCount > 0) { badge.style.display = 'inline-block'; badge.innerText = pendingCount; }
+            else badge.style.display = 'none';
         }
     }
 
-    function loadAllData() { loadConfig(); loadCategories(); loadProducts(); loadRentals(); renderCategorySelect(); showBannerPreview(); renderCategoryList(); renderProductList(); renderRentalList(); showPaymentImagePreviews(); }
+    function renderOrders() {
+        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        const container = document.getElementById('ordersList');
+        if (!container) return;
+        if (orders.length === 0) { container.innerHTML = '<p>Chưa có đơn hàng nào.</p>'; return; }
+        let html = '';
+        orders.forEach(order => {
+            const statusClass = order.status === 'Đã duyệt' ? 'approved' : '';
+            let itemsHtml = '';
+            if (order.type === 'mua_hang') itemsHtml = order.items.map(i => `${i.name} x ${i.quantity}`).join(', ');
+            else itemsHtml = `Thuê ${order.rental.name} - ${order.rental.days} ngày - ${order.rental.total.toLocaleString('vi-VN')}₫`;
+            html += `<div class="order-item">
+                        <div class="order-details">
+                            <strong>Đơn #${order.id}</strong><br>
+                            Khách: ${order.customer.fullName} - ${order.customer.phone}<br>
+                            Địa chỉ: ${order.customer.address}<br>
+                            ${order.customer.socialLink ? `Liên kết: <a href="${order.customer.socialLink}" target="_blank">${order.customer.socialLink}</a><br>` : ''}
+                            Sản phẩm: ${itemsHtml}<br>
+                            Tổng: <strong>${order.total.toLocaleString('vi-VN')}₫</strong><br>
+                            Ngày: ${new Date(order.createdAt).toLocaleString('vi-VN')}<br>
+                            Trạng thái: <span class="order-status ${statusClass}">${order.status}</span>
+                        </div>
+                        <div>
+                            ${order.status === 'Chờ duyệt' ? `<button class="approve-order" data-id="${order.id}">✅ Duyệt</button>` : ''}
+                            <button class="delete-order" data-id="${order.id}">🗑️ Xóa</button>
+                        </div>
+                    </div>`;
+        });
+        container.innerHTML = html;
+        document.querySelectorAll('.approve-order').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = parseInt(btn.dataset.id);
+                let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                const idx = orders.findIndex(o => o.id === id);
+                if (idx !== -1) { orders[idx].status = 'Đã duyệt'; localStorage.setItem('orders', JSON.stringify(orders)); renderOrders(); updateOrderBadge(); }
+            });
+        });
+        document.querySelectorAll('.delete-order').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (confirm('Xóa đơn hàng này?')) {
+                    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                    orders = orders.filter(o => o.id !== parseInt(btn.dataset.id));
+                    localStorage.setItem('orders', JSON.stringify(orders)); renderOrders(); updateOrderBadge();
+                }
+            });
+        });
+    }
+
+    function loadAllData() { loadConfig(); loadCategories(); loadProducts(); loadRentals(); renderCategorySelect(); showBannerPreview(); renderCategoryList(); renderProductList(); renderRentalList(); showPaymentImagePreviews(); updateOrderBadge(); updateSocialLinks(); }
 
     function loadConfig() {
         const stored = localStorage.getItem('site_config');
@@ -318,7 +452,9 @@
             config = {
                 shopName: "FilmStore Cartoon", logoUrl: "", mainBannerUrl: "", facebookCheckout: "", instagramCheckout: "",
                 paymentText: "Chọn kênh để hoàn tất đơn hàng:", footerText: "© 2025 FilmStore Cartoon", rentButtonLabel: "📸 Thuê máy ảnh",
-                paymentImageCart: "", paymentImageRent: "",
+                paymentImageCart: "", paymentImageRent: "", supportFacebook: "", supportInstagram: "",
+                notificationText: "🎉 Chào mừng bạn đến với FilmStore! 🎉\n🎞️ Cửa hàng phim và máy ảnh chất lượng. Giao hàng toàn quốc.",
+                notificationBg: "#ffefc0",
                 theme: { bgBody: "#fff9ef", headerBg: "#ffe5b4", headerText: "#d43f1f", primaryBtn: "#f0bc6e", borderDark: "#1f1a12", cartBg: "#fff1df", footerBg: "#2d2b1f", footerText: "#ffecb3" },
                 adminTheme: { bg: "#e9e2d0", sidebarBg: "#2d2b1f", sidebarText: "#ffecb3", contentBg: "#fff6e8", border: "#1f1a10", btn: "#f0bc6e" },
                 fontConfig: {
@@ -331,7 +467,6 @@
             };
             localStorage.setItem('site_config', JSON.stringify(config));
         }
-        // Fill form
         document.getElementById('shopNameInput').value = config.shopName || '';
         document.getElementById('logoUrlInput').value = config.logoUrl || '';
         document.getElementById('bannerUrlInput').value = config.mainBannerUrl || '';
@@ -342,7 +477,10 @@
         document.getElementById('rentButtonLabelInput').value = config.rentButtonLabel || "📸 Thuê máy ảnh";
         document.getElementById('paymentImageCartUrl').value = config.paymentImageCart || '';
         document.getElementById('paymentImageRentUrl').value = config.paymentImageRent || '';
-        // theme
+        document.getElementById('supportFacebookInput').value = config.supportFacebook || '';
+        document.getElementById('supportInstagramInput').value = config.supportInstagram || '';
+        document.getElementById('notificationTextInput').value = config.notificationText || "🎉 Chào mừng bạn đến với FilmStore! 🎉\n🎞️ Cửa hàng phim và máy ảnh chất lượng. Giao hàng toàn quốc.";
+        document.getElementById('notificationBgInput').value = config.notificationBg || "#ffefc0";
         const t = config.theme || {};
         document.getElementById('bgBody').value = t.bgBody || "#fff9ef";
         document.getElementById('headerBg').value = t.headerBg || "#ffe5b4";
@@ -352,7 +490,6 @@
         document.getElementById('cartBg').value = t.cartBg || "#fff1df";
         document.getElementById('footerBg').value = t.footerBg || "#2d2b1f";
         document.getElementById('footerTextColor').value = t.footerText || "#ffecb3";
-        // admin theme
         const at = config.adminTheme || {};
         document.getElementById('adminBg').value = at.bg || "#e9e2d0";
         document.getElementById('adminSidebarBg').value = at.sidebarBg || "#2d2b1f";
@@ -360,7 +497,6 @@
         document.getElementById('adminContentBg').value = at.contentBg || "#fff6e8";
         document.getElementById('adminBorder').value = at.border || "#1f1a10";
         document.getElementById('adminBtn').value = at.btn || "#f0bc6e";
-        // font
         const fc = config.fontConfig || {};
         document.getElementById('mainFontSelect').value = fc.mainFont || "'Quicksand', sans-serif";
         document.getElementById('headerFontSelect').value = fc.headerFont || "'Fredoka One', cursive";
@@ -379,8 +515,9 @@
         document.getElementById('footerFontSize').value = fc.footerFontSize || 14;
         document.getElementById('productWeight').value = fc.productWeight || 700;
         if (config.logoUrl) { document.getElementById('logoPreview').src = config.logoUrl; document.getElementById('logoPreview').style.display = 'block'; }
-        // Cập nhật tiêu đề sidebar
         updateSidebarTitle();
+        updateSocialLinks();
+        updateOrderBadge();
     }
 
     function applyAdminTheme() {
@@ -394,15 +531,20 @@
         root.setProperty('--admin-btn', at.btn);
     }
 
+    // Hàm lưu tổng quan (bao gồm notification và support links)
     function saveGeneral() {
         config.shopName = document.getElementById('shopNameInput').value;
         config.rentButtonLabel = document.getElementById('rentButtonLabelInput').value;
+        config.supportFacebook = document.getElementById('supportFacebookInput').value;
+        config.supportInstagram = document.getElementById('supportInstagramInput').value;
+        config.notificationText = document.getElementById('notificationTextInput').value;
+        config.notificationBg = document.getElementById('notificationBgInput').value;
         let logoUrl = document.getElementById('logoUrlInput').value;
         const file = document.getElementById('logoUpload').files[0];
         if (file) { const reader = new FileReader(); reader.onload = e => { config.logoUrl = e.target.result; finalSaveGeneral(); }; reader.readAsDataURL(file); }
         else { config.logoUrl = logoUrl; finalSaveGeneral(); }
     }
-    function finalSaveGeneral() { localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu'); loadConfig(); }
+    function finalSaveGeneral() { localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu cấu hình chung'); loadConfig(); }
 
     function saveColor() {
         config.theme = {
@@ -415,9 +557,7 @@
     }
     function resetColor() {
         const defaultTheme = { bgBody: "#fff9ef", headerBg: "#ffe5b4", headerText: "#d43f1f", primaryBtn: "#f0bc6e", borderDark: "#1f1a12", cartBg: "#fff1df", footerBg: "#2d2b1f", footerText: "#ffecb3" };
-        config.theme = defaultTheme;
-        localStorage.setItem('site_config', JSON.stringify(config));
-        loadConfig(); alert('Đã reset màu về mặc định');
+        config.theme = defaultTheme; localStorage.setItem('site_config', JSON.stringify(config)); loadConfig(); alert('Đã reset màu về mặc định');
     }
     function saveAdminColor() {
         config.adminTheme = {
@@ -438,36 +578,29 @@
             buttonFontSize: parseInt(document.getElementById('buttonFontSize').value), categoryFontSize: parseInt(document.getElementById('categoryFontSize').value),
             footerFontSize: parseInt(document.getElementById('footerFontSize').value), productWeight: document.getElementById('productWeight').value
         };
-        localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu cấu hình font chữ');
+        localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu font');
     }
     function savePayment() {
         config.facebookCheckout = document.getElementById('fbLinkInput').value;
         config.instagramCheckout = document.getElementById('igLinkInput').value;
         config.paymentText = document.getElementById('paymentText').value;
         config.footerText = document.getElementById('footerTextInput').value;
-        localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu');
+        localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu'); updateSocialLinks();
     }
 
+    // Ảnh thanh toán, banner, category, product, rental (giữ nguyên)
     function savePaymentImage(type) {
         let url = document.getElementById(type === 'cart' ? 'paymentImageCartUrl' : 'paymentImageRentUrl').value.trim();
-        const fileInput = document.getElementById(type === 'cart' ? 'paymentImageCartUpload' : 'paymentImageRentUpload');
-        if (fileInput.files && fileInput.files[0]) {
+        const file = document.getElementById(type === 'cart' ? 'paymentImageCartUpload' : 'paymentImageRentUpload');
+        if (file.files && file.files[0]) {
             const reader = new FileReader();
             reader.onload = e => { config[`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`] = e.target.result; finalSaveImage(); };
-            reader.readAsDataURL(fileInput.files[0]);
-        } else if (url) {
-            config[`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`] = url;
-            finalSaveImage();
-        } else alert('Nhập URL hoặc chọn ảnh');
+            reader.readAsDataURL(file.files[0]);
+        } else if (url) { config[`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`] = url; finalSaveImage(); }
+        else alert('Nhập URL hoặc chọn ảnh');
     }
-    function finalSaveImage() { localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu ảnh thanh toán'); showPaymentImagePreviews(); }
-    function clearPaymentImage(type) {
-        config[`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`] = "";
-        localStorage.setItem('site_config', JSON.stringify(config));
-        document.getElementById(type === 'cart' ? 'paymentImageCartUrl' : 'paymentImageRentUrl').value = '';
-        showPaymentImagePreviews();
-        alert('Đã xóa ảnh');
-    }
+    function finalSaveImage() { localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu ảnh'); showPaymentImagePreviews(); }
+    function clearPaymentImage(type) { config[`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`] = ""; localStorage.setItem('site_config', JSON.stringify(config)); document.getElementById(type === 'cart' ? 'paymentImageCartUrl' : 'paymentImageRentUrl').value = ''; showPaymentImagePreviews(); alert('Đã xóa ảnh'); }
     function showPaymentImagePreviews() {
         const cartPreview = document.getElementById('paymentImageCartPreview');
         const rentPreview = document.getElementById('paymentImageRentPreview');
@@ -526,35 +659,38 @@
         const oldPass = document.getElementById('oldPassword').value;
         const newPass = document.getElementById('newPassword').value;
         const confirmPass = document.getElementById('confirmPassword').value;
-        if (!oldPass || !newPass || !confirmPass) {
-            alert('Vui lòng nhập đầy đủ thông tin');
-            return;
-        }
-        if (oldPass !== adminPassword) {
-            alert('Mật khẩu cũ không đúng');
-            return;
-        }
-        if (newPass !== confirmPass) {
-            alert('Mật khẩu mới và xác nhận không khớp');
-            return;
-        }
-        if (newPass.length < 4) {
-            alert('Mật khẩu mới phải có ít nhất 4 ký tự');
-            return;
-        }
+        if (!oldPass || !newPass || !confirmPass) { alert('Vui lòng nhập đầy đủ'); return; }
+        if (oldPass !== adminPassword) { alert('Mật khẩu cũ không đúng'); return; }
+        if (newPass !== confirmPass) { alert('Mật khẩu mới không khớp'); return; }
+        if (newPass.length < 4) { alert('Mật khẩu mới phải có ít nhất 4 ký tự'); return; }
         saveAdminPassword(newPass);
-        document.getElementById('oldPassword').value = '';
-        document.getElementById('newPassword').value = '';
-        document.getElementById('confirmPassword').value = '';
+        document.getElementById('oldPassword').value = ''; document.getElementById('newPassword').value = ''; document.getElementById('confirmPassword').value = '';
     }
 
     function escapeHtml(str) { return str.replace(/[&<>]/g, m=> m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
 
-    // Navigation
-    document.querySelectorAll('.sidebar nav a').forEach(link=>{ link.addEventListener('click',e=>{ e.preventDefault(); let sec=link.dataset.section; document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById(`section-${sec}`).classList.add('active'); document.querySelectorAll('.sidebar nav a').forEach(a=>a.classList.remove('active')); link.classList.add('active'); }); });
+    // Chuyển section
+    document.querySelectorAll('.sidebar nav a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const sec = link.dataset.section;
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`section-${sec}`).classList.add('active');
+            document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+            if (sec === 'orders') renderOrders();
+        });
+    });
     document.querySelector('.sidebar nav a').classList.add('active');
 
-    // Xử lý sự kiện
+    document.getElementById('doLogin')?.addEventListener('click', () => {
+        if (document.getElementById('password').value === adminPassword) {
+            sessionStorage.setItem('admin_auth', 'true');
+            checkAuth();
+        } else alert('Sai mật khẩu!');
+    });
+    document.getElementById('logoutBtnSidebar')?.addEventListener('click', () => { sessionStorage.removeItem('admin_auth'); location.reload(); });
+
     document.getElementById('saveGeneralBtn')?.addEventListener('click', saveGeneral);
     document.getElementById('saveColorBtn')?.addEventListener('click', saveColor);
     document.getElementById('resetColorBtn')?.addEventListener('click', resetColor);
@@ -569,25 +705,11 @@
     document.getElementById('addCatBtn')?.addEventListener('click', addCategory);
     document.getElementById('addOrUpdateBtn')?.addEventListener('click', addOrUpdateProduct);
     document.getElementById('addRentBtn')?.addEventListener('click', addRentItem);
-    document.getElementById('logoutBtn')?.addEventListener('click', ()=>{ sessionStorage.removeItem('admin_auth'); checkAuth(); });
     document.getElementById('changePasswordBtn')?.addEventListener('click', changePassword);
-
-    // Đăng nhập
-    document.getElementById('doLogin')?.addEventListener('click', () => {
-        const enteredPass = document.getElementById('password').value;
-        if (enteredPass === adminPassword) {
-            sessionStorage.setItem('admin_auth', 'true');
-            checkAuth();
-        } else {
-            alert('Sai mật khẩu!');
-        }
-    });
-
     document.getElementById('logoUpload')?.addEventListener('change', e=>{ if(e.target.files[0]){ let reader=new FileReader(); reader.onload=ev=>{ document.getElementById('logoPreview').src=ev.target.result; document.getElementById('logoPreview').style.display='block'; document.getElementById('logoUrlInput').value=''; }; reader.readAsDataURL(e.target.files[0]); } });
 
-    // Khởi tạo
-    loadAdminPassword();
     populateFontSelects();
+    loadAdminPassword();
     checkAuth();
 </script>
 </body>
