@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title id="dynamicTitle">FilmStore Cartoon</title>
-    <!-- Google Fonts dự phòng -->
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Nunito:wght@400;600;700&family=Fredoka+One&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style id="dynamicStyles">
+    <style>
         :root {
             --bg-body: #fff9ef;
             --header-bg: #ffe5b4;
@@ -97,22 +96,180 @@
         .btn-clear-cart { background: #f5b042; }
         .btn-checkout-cart { background: #3b9b3b; color: white; }
         .footer { width: 100%; background: var(--footer-bg); color: var(--footer-text); text-align: center; padding: 1.2rem; border-top: 4px solid var(--border-dark); font-size: 1rem; margin-top: auto; }
-        .rent-modal, .payment-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1100; justify-content: center; align-items: center; }
-        .rent-modal-content, .payment-modal-content { background: var(--cart-bg); border-radius: 48px; border: 4px solid var(--border-dark); box-shadow: 12px 12px 0 var(--border-dark); padding: 1.8rem; width: 90%; max-width: 700px; max-height: 85vh; overflow-y: auto; }
-        .rent-items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.2rem; margin: 1.2rem 0; }
-        .rent-card { background: white; border-radius: 30px; border: 2px solid var(--border-dark); padding: 1rem; text-align: center; }
-        .rent-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 20px; }
-        .rent-price { color: #c45200; font-weight: bold; font-size: 1.1rem; }
-        .rent-stock { font-size: 0.85rem; margin: 5px 0; }
-        .rent-btn-choose { background: var(--primary-btn); padding: 8px; border-radius: 40px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px; }
-        .payment-buttons { display: flex; gap: 1rem; justify-content: center; margin: 1rem 0; }
-        .payment-btn { background: var(--primary-btn); padding: 10px 24px; border-radius: 60px; font-weight: bold; cursor: pointer; border: 2px solid var(--border-dark); box-shadow: 3px 3px 0 var(--border-dark); }
-        .close-rent-modal, .close-modal { background: #c0a57a; margin-top: 1rem; padding: 8px 20px; border-radius: 40px; cursor: pointer; border: none; }
+        
+        /* Modal thuê máy ảnh - kích thước lớn, dễ nhìn */
+        .rent-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1100;
+            justify-content: center;
+            align-items: center;
+        }
+        .rent-modal-content {
+            background: var(--cart-bg);
+            border-radius: 48px;
+            border: 4px solid var(--border-dark);
+            box-shadow: 16px 16px 0 var(--border-dark);
+            padding: 2rem;
+            width: 90%;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .rent-modal-content h2 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .rent-modal-content p {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+        .rent-items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.8rem;
+            margin: 1.5rem 0;
+        }
+        .rent-card {
+            background: white;
+            border-radius: 35px;
+            border: 3px solid var(--border-dark);
+            padding: 1.2rem;
+            text-align: center;
+            transition: 0.1s;
+            box-shadow: 6px 6px 0 #aa9f8c;
+        }
+        .rent-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 24px;
+            margin-bottom: 10px;
+        }
+        .rent-name {
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin: 8px 0 4px;
+        }
+        .rent-price {
+            color: #c45200;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 6px 0;
+        }
+        .rent-stock {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #2c6e2c;
+            margin-bottom: 12px;
+        }
+        .rent-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 12px 0;
+        }
+        .rent-controls input {
+            width: 80px;
+            padding: 8px;
+            border-radius: 40px;
+            border: 2px solid var(--border-dark);
+            text-align: center;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .rent-btn-choose {
+            background: var(--primary-btn);
+            padding: 10px 16px;
+            border-radius: 60px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            border: 2px solid var(--border-dark);
+            box-shadow: 3px 3px 0 var(--border-dark);
+            transition: 0.05s linear;
+        }
+        .rent-btn-choose:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 var(--border-dark);
+        }
+        .close-rent-modal {
+            background: #c0a57a;
+            margin-top: 1rem;
+            padding: 10px 24px;
+            border-radius: 60px;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+            display: block;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Các modal thanh toán */
+        .payment-modal, .rent-payment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1200;
+            justify-content: center;
+            align-items: center;
+        }
+        .payment-modal-content, .rent-payment-content {
+            background: var(--cart-bg);
+            border-radius: 48px;
+            border: 4px solid var(--border-dark);
+            box-shadow: 16px 16px 0 var(--border-dark);
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .payment-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+        .payment-btn {
+            background: var(--primary-btn);
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid var(--border-dark);
+            box-shadow: 4px 4px 0 var(--border-dark);
+            font-size: 1rem;
+        }
+        .close-modal {
+            background: #c0a57a;
+            margin-top: 1rem;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+        }
         @media (max-width: 880px) {
             .shop-layout { flex-direction: column; }
             .cart-panel { position: static; }
             .action-row { flex-direction: column; align-items: stretch; }
             .rent-btn { justify-content: center; }
+            .rent-items-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -164,7 +321,7 @@
 
 <footer class="footer" id="footerText"></footer>
 
-<!-- Modal thuê máy -->
+<!-- Modal danh sách thuê máy ảnh (kích thước lớn) -->
 <div id="rentModal" class="rent-modal">
     <div class="rent-modal-content">
         <h2><i class="fas fa-camera-retro"></i> Thuê máy ảnh</h2>
@@ -174,7 +331,20 @@
     </div>
 </div>
 
-<!-- Modal thanh toán -->
+<!-- Modal thanh toán cho thuê máy -->
+<div id="rentPaymentModal" class="rent-payment-modal">
+    <div class="rent-payment-content">
+        <h2>🧾 Xác nhận thuê máy</h2>
+        <div id="rentPaymentInfo"></div>
+        <div class="payment-buttons">
+            <div id="rentFacebookLink" class="payment-btn">Facebook</div>
+            <div id="rentInstagramLink" class="payment-btn">Instagram</div>
+        </div>
+        <button id="closeRentPaymentModal" class="close-modal">Đóng</button>
+    </div>
+</div>
+
+<!-- Modal thanh toán giỏ hàng -->
 <div id="paymentModal" class="payment-modal">
     <div class="payment-modal-content">
         <h2>🧾 Thanh toán</h2>
@@ -209,6 +379,7 @@
 
     let config = {}, categories = [], products = [], cart = [], rentItems = [];
     let currentCategoryId = 'all', searchKeyword = '';
+    let pendingRental = null;
 
     function loadConfig() {
         const stored = localStorage.getItem('site_config');
@@ -232,6 +403,8 @@
         if (rentBtnSpan) rentBtnSpan.innerText = config.rentButtonLabel || "📸 Thuê máy ảnh";
         document.getElementById('facebookLink').onclick = () => processPayment(config.facebookCheckout || 'https://facebook.com');
         document.getElementById('instagramLink').onclick = () => processPayment(config.instagramCheckout || 'https://instagram.com');
+        document.getElementById('rentFacebookLink').onclick = () => processRentPayment(config.facebookCheckout || 'https://facebook.com');
+        document.getElementById('rentInstagramLink').onclick = () => processRentPayment(config.instagramCheckout || 'https://instagram.com');
     }
 
     function applyTheme() {
@@ -258,26 +431,9 @@
         } else logoImg.style.display = "none";
         const bannerDiv = document.getElementById('mainBanner');
         if (config.mainBannerUrl && config.mainBannerUrl.trim() !== "") {
-            // Tạo ảnh và xử lý lỗi an toàn
-            const img = document.createElement('img');
-            img.src = config.mainBannerUrl;
-            img.alt = "Banner";
-            img.onerror = function() {
-                bannerDiv.innerHTML = '<div class="banner-placeholder">📸 Không tải được ảnh banner</div>';
-            };
-            img.onload = function() {
-                bannerDiv.innerHTML = '';
-                bannerDiv.appendChild(img);
-            };
-            // Nếu ảnh đã lỗi từ trước (cache) thì gọi onerror
-            if (img.complete && img.naturalWidth === 0) {
-                img.onerror();
-            } else {
-                bannerDiv.innerHTML = '';
-                bannerDiv.appendChild(img);
-            }
+            bannerDiv.innerHTML = `<img src="${config.mainBannerUrl}" alt="Banner" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'banner-placeholder\'>📸 Không tải được ảnh banner</div>'">`;
         } else {
-            bannerDiv.innerHTML = '<div class="banner-placeholder">🎞️ Thêm banner từ quản trị</div>';
+            bannerDiv.innerHTML = `<div class="banner-placeholder">🎞️ Thêm banner từ quản trị</div>`;
         }
     }
 
@@ -295,19 +451,20 @@
         }
     }
     function saveRentItems() { localStorage.setItem('rental_items', JSON.stringify(rentItems)); }
+
     function showRentModal() {
         const container = document.getElementById('rentItemsList');
         if (!container) return;
         let html = '';
         rentItems.forEach(item => {
             html += `<div class="rent-card">
-                        <img src="${item.imageUrl}" onerror="this.src='https://via.placeholder.com/200?text=no+img'">
+                        <img src="${item.imageUrl}" onerror="this.src='https://via.placeholder.com/260x160?text=no+img'">
                         <div class="rent-name">${escapeHtml(item.name)}</div>
                         <div class="rent-price">${item.pricePerDay.toLocaleString('vi-VN')}₫/ngày</div>
                         <div class="rent-stock">Còn: ${item.stock}</div>
-                        <div style="display:flex; gap:8px; margin-top:8px;">
-                            <input type="number" id="days_${item.id}" min="1" max="30" value="1" style="width:70px; padding:6px; border-radius:30px; border:1px solid #111;">
-                            <button class="rent-btn-choose" data-id="${item.id}">Thuê</button>
+                        <div class="rent-controls">
+                            <input type="number" id="days_${item.id}" min="1" max="30" value="1">
+                            <button class="rent-btn-choose" data-id="${item.id}">Chọn thuê</button>
                         </div>
                     </div>`;
         });
@@ -320,15 +477,35 @@
                 if (!item || days < 1) return;
                 if (item.stock < 1) { alert('Máy này đã hết!'); return; }
                 const totalPrice = item.pricePerDay * days;
-                if (confirm(`Bạn muốn thuê ${item.name} trong ${days} ngày. Tổng tiền: ${totalPrice.toLocaleString('vi-VN')}₫. Tiến hành thuê?`)) {
-                    item.stock--;
-                    saveRentItems();
-                    alert(`Đã đặt thuê ${item.name} thành công! Chúng tôi sẽ liên hệ sớm.`);
-                    showRentModal();
-                }
+                pendingRental = { item, days, totalPrice };
+                const infoDiv = document.getElementById('rentPaymentInfo');
+                infoDiv.innerHTML = `<p><strong>${escapeHtml(item.name)}</strong></p>
+                                    <p>Số ngày: ${days}</p>
+                                    <p>Tổng tiền thuê: <strong style="color:#c45200;">${totalPrice.toLocaleString('vi-VN')}₫</strong></p>`;
+                document.getElementById('rentPaymentModal').style.display = 'flex';
+                document.getElementById('rentModal').style.display = 'none';
             });
         });
         document.getElementById('rentModal').style.display = 'flex';
+    }
+
+    function processRentPayment(redirectUrl) {
+        if (!pendingRental) return;
+        const { item, days, totalPrice } = pendingRental;
+        const currentItem = rentItems.find(i => i.id === item.id);
+        if (!currentItem || currentItem.stock < 1) {
+            alert('Máy này đã hết, vui lòng chọn máy khác!');
+            document.getElementById('rentPaymentModal').style.display = 'none';
+            pendingRental = null;
+            return;
+        }
+        currentItem.stock--;
+        saveRentItems();
+        document.getElementById('rentPaymentModal').style.display = 'none';
+        alert(`Đã đặt thuê ${item.name} thành công! Tổng tiền: ${totalPrice.toLocaleString('vi-VN')}₫.\nChúng tôi sẽ liên hệ sớm.`);
+        pendingRental = null;
+        if (document.getElementById('rentModal').style.display === 'flex') showRentModal();
+        setTimeout(() => { window.location.href = redirectUrl; }, 500);
     }
 
     // Categories
@@ -488,11 +665,19 @@
 
     document.getElementById('openRentModalBtn')?.addEventListener('click', showRentModal);
     document.getElementById('closeRentModal')?.addEventListener('click', () => document.getElementById('rentModal').style.display = 'none');
+    document.getElementById('closeRentPaymentModal')?.addEventListener('click', () => {
+        document.getElementById('rentPaymentModal').style.display = 'none';
+        pendingRental = null;
+    });
     document.getElementById('checkoutBtn')?.addEventListener('click', () => { if (cart.length) document.getElementById('paymentModal').style.display = 'flex'; else alert('Giỏ trống'); });
     document.getElementById('closeModalBtn')?.addEventListener('click', () => document.getElementById('paymentModal').style.display = 'none');
     window.addEventListener('click', (e) => {
         if (e.target === document.getElementById('rentModal')) document.getElementById('rentModal').style.display = 'none';
         if (e.target === document.getElementById('paymentModal')) document.getElementById('paymentModal').style.display = 'none';
+        if (e.target === document.getElementById('rentPaymentModal')) {
+            document.getElementById('rentPaymentModal').style.display = 'none';
+            pendingRental = null;
+        }
     });
     document.getElementById('clearCartBtn')?.addEventListener('click', () => { if (cart.length && confirm('Xóa hết giỏ hàng?')) { cart = []; saveCart(); renderCart(); } });
 
