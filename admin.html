@@ -3,24 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Quản trị - FilmStore Pro</title>
-    <style>
-        @font-face {
-            font-family: 'iCiel Crocante';
-            src: url('https://fonts.cdnfonts.com/css/iciel-crocante') format('woff2');
-            font-weight: normal;
-            font-style: normal;
-        }
-    </style>
+    <title id="adminTitle">Quản trị - FilmStore Pro</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600&family=Poppins:wght@400;600&family=Roboto:wght@400;500;700&family=Nunito:wght@400;600;700&family=Open+Sans:wght@400;600&family=Noto+Sans:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;600&family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&family=Montserrat:wght@400;500;600&family=Source+Sans+3:wght@400;600&family=Playfair+Display:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Quicksand',sans-serif; }
-        body {
-            background: var(--admin-bg, #e9e2d0);
-            display: flex;
-            min-height: 100vh;
-        }
+        body { background: var(--admin-bg, #e9e2d0); display: flex; min-height: 100vh; }
         :root {
             --admin-bg: #e9e2d0;
             --admin-sidebar-bg: #2d2b1f;
@@ -38,62 +29,21 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: all 0.2s;
         }
-        .sidebar h2 {
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.4rem;
-            margin-bottom: 2rem;
-            text-align: center;
-            color: #ffc857;
-            word-break: break-word;
-        }
-        .sidebar nav {
-            flex: 1;
-        }
+        .sidebar h2 { font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 2rem; text-align: center; color: #ffc857; }
+        .sidebar nav { flex: 1; }
         .sidebar nav a {
             display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin: 8px 0;
             background: #3f3c2e; border-radius: 40px; text-decoration: none; color: var(--admin-sidebar-text);
-            font-weight: bold; border: 1px solid #6b5a3e;
-            position: relative;
+            font-weight: bold; border: 1px solid #6b5a3e; position: relative;
         }
         .sidebar nav a:hover, .sidebar nav a.active { background: var(--admin-btn); color: #2d2b1f; box-shadow: 3px 3px 0 var(--admin-border); }
-        .notification-badge {
-            background-color: #ff6b6b;
-            color: white;
-            border-radius: 30px;
-            padding: 2px 8px;
-            font-size: 0.7rem;
-            margin-left: auto;
-        }
-        .sidebar-footer {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid #6b5a3e;
-        }
-        .social-links {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
-        .social-links a {
-            color: var(--admin-sidebar-text);
-            font-size: 1.4rem;
-            transition: 0.2s;
-        }
+        .notification-badge { background-color: #ff6b6b; color: white; border-radius: 30px; padding: 2px 8px; font-size: 0.7rem; margin-left: auto; }
+        .sidebar-footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #6b5a3e; }
+        .social-links { display: flex; gap: 15px; justify-content: center; margin-bottom: 1rem; }
+        .social-links a { color: var(--admin-sidebar-text); font-size: 1.4rem; transition: 0.2s; }
         .social-links a:hover { color: var(--admin-btn); }
-        .logout-btn {
-            background: #b45a3b;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-            border: none;
-        }
+        .logout-btn { background: #b45a3b; color: white; text-align: center; padding: 10px; border-radius: 40px; cursor: pointer; font-weight: bold; width: 100%; border: none; }
         .main-content { flex: 1; padding: 1.5rem; overflow-y: auto; }
         .admin-panel { background: var(--admin-content-bg); border-radius: 48px; border: 4px solid var(--admin-border); padding: 1.5rem; box-shadow: 12px 12px 0 #bbaa7a; }
         .section { display: none; }
@@ -110,37 +60,38 @@
         .product-list, .cat-list, .rental-list, .orders-list { margin-top: 1rem; }
         .product-item, .cat-item, .rental-item, .order-item {
             display: flex; justify-content: space-between; align-items: center;
-            background: #f9f2e0; padding: 12px 16px; border-radius: 60px; margin-bottom: 12px; border: 2px solid #9b7a4a;
-            flex-wrap: wrap;
-            gap: 10px;
+            background: #f9f2e0; padding: 12px 16px; border-radius: 60px; margin-bottom: 12px; border: 2px solid #9b7a4a; flex-wrap: wrap; gap: 10px;
         }
         .order-details { flex: 1; }
-        .order-status {
-            font-weight: bold; padding: 4px 12px; border-radius: 40px;
-            background: #ffc107; color: #333;
-        }
+        .order-status { font-weight: bold; padding: 4px 12px; border-radius: 40px; background: #ffc107; color: #333; }
         .order-status.approved { background: #28a745; color: white; }
         .login-form { max-width: 360px; margin: 2rem auto; text-align: center; background: #fff6e8; padding: 2rem; border-radius: 60px; border: 4px solid #1f1a10; }
         .payment-image-preview { max-width: 200px; max-height: 300px; border-radius: 20px; margin-top: 8px; border: 2px solid #9b7a4a; }
         .grid-2cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         hr { margin: 1rem 0; border: 1px dashed #c0aa7a; }
-        /* Responsive cho mobile */
         @media (max-width: 880px) {
             body { flex-direction: column; }
-            .sidebar { width: 100%; padding: 1rem; border-right: none; border-bottom: 4px solid var(--admin-border); flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; }
-            .sidebar h2 { margin-bottom: 0; font-size: 1.2rem; }
-            .sidebar nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
-            .sidebar nav a { margin: 0; padding: 6px 12px; font-size: 0.8rem; }
-            .sidebar-footer { display: flex; gap: 10px; align-items: center; margin-top: 0; padding-top: 0; border-top: none; }
-            .social-links { margin-bottom: 0; }
-            .logout-btn { width: auto; padding: 6px 12px; }
-            .main-content { padding: 1rem; }
+            .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 0.8rem 1rem; border-right: none; border-bottom: 4px solid var(--admin-border); gap: 10px; }
+            .sidebar h2 { font-size: 1.2rem; margin-bottom: 0; }
+            .sidebar nav { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 8px; padding-bottom: 4px; flex: 1; }
+            .sidebar nav a { margin: 0; padding: 6px 12px; font-size: 0.8rem; white-space: nowrap; }
+            .sidebar-footer { display: flex; flex-direction: row; gap: 12px; align-items: center; margin-top: 0; padding-top: 0; border-top: none; }
+            .social-links { margin-bottom: 0; gap: 8px; }
+            .social-links a { font-size: 1.2rem; }
+            .logout-btn { width: auto; padding: 6px 12px; font-size: 0.8rem; }
+            .main-content { padding: 0.8rem; }
             .admin-panel { padding: 1rem; border-radius: 32px; }
-            .grid-2cols { grid-template-columns: 1fr; }
+            .grid-2cols { grid-template-columns: 1fr; gap: 0.8rem; }
+            .form-group input, .form-group select, .form-group textarea { width: 100%; margin-right: 0; }
+            .product-item, .cat-item, .rental-item, .order-item { flex-direction: column; align-items: flex-start; }
+            .order-details { width: 100%; }
+            button { margin-top: 10px; width: 100%; }
+            .product-item button, .cat-item button, .rental-item button, .order-item button { width: auto; margin: 5px 5px 0 0; }
         }
         @media (max-width: 480px) {
-            .sidebar nav a { padding: 4px 8px; font-size: 0.7rem; }
-            .product-item, .cat-item, .rental-item, .order-item { flex-direction: column; align-items: flex-start; }
+            .sidebar nav a { padding: 4px 10px; font-size: 0.7rem; }
+            .sidebar h2 { font-size: 1rem; }
+            .logout-btn { padding: 4px 10px; }
         }
     </style>
 </head>
@@ -186,24 +137,26 @@
     </div>
     <div class="main-content">
         <div class="admin-panel">
-            <!-- TỔNG QUAN (có thêm các trường mới) -->
+            <!-- GENERAL -->
             <div id="section-general" class="section active">
                 <h2>📌 Cấu hình chung</h2>
-                <div class="form-group"><label>Tên shop</label><input type="text" id="shopNameInput"></div>
-                <div class="form-group"><label>Logo (URL / upload)</label><input type="text" id="logoUrlInput"><input type="file" id="logoUpload" accept="image/*"><img id="logoPreview" class="preview-img" style="display:none;"></div>
+                <div class="form-group"><label>Tên shop (hiển thị trên logo)</label><input type="text" id="shopNameInput"></div>
+                <div class="form-group"><label>Tiêu đề trang chính (Title)</label><input type="text" id="siteTitleInput" placeholder="FilmStore Cartoon"></div>
+                <div class="form-group"><label>Tiêu đề trang quản trị (Title)</label><input type="text" id="adminTitleInput" placeholder="Quản trị - FilmStore Pro"></div>
+                <div class="form-group"><label>Logo (URL hoặc upload)</label><input type="text" id="logoUrlInput"><input type="file" id="logoUpload" accept="image/*"><img id="logoPreview" class="preview-img" style="display:none;"></div>
                 <div class="form-group"><label>Nút thuê máy ảnh (văn bản)</label><input type="text" id="rentButtonLabelInput" placeholder="📸 Thuê máy ảnh"></div>
                 <hr>
                 <h3>🔔 Thông báo trang chủ</h3>
-                <div class="form-group"><label>Nội dung thông báo (có thể xuống dòng)</label><textarea id="notificationTextInput" rows="3" placeholder="🎉 Chào mừng bạn đến với FilmStore! 🎉&#10;🎞️ Cửa hàng phim và máy ảnh chất lượng. Giao hàng toàn quốc."></textarea></div>
+                <div class="form-group"><label>Nội dung thông báo</label><textarea id="notificationTextInput" rows="3"></textarea></div>
                 <div class="form-group"><label>Màu nền thông báo</label><input type="color" id="notificationBgInput" class="color-input"></div>
                 <hr>
                 <h3>📱 Liên kết hỗ trợ (Facebook/Instagram)</h3>
-                <div class="form-group"><label>Facebook hỗ trợ</label><input type="url" id="supportFacebookInput" placeholder="https://facebook.com/shop"></div>
-                <div class="form-group"><label>Instagram hỗ trợ</label><input type="url" id="supportInstagramInput" placeholder="https://instagram.com/shop"></div>
-                <button id="saveGeneralBtn">💾 Lưu tất cả cấu hình chung</button>
+                <div class="form-group"><label>Facebook hỗ trợ</label><input type="url" id="supportFacebookInput"></div>
+                <div class="form-group"><label>Instagram hỗ trợ</label><input type="url" id="supportInstagramInput"></div>
+                <button id="saveGeneralBtn">💾 Lưu cấu hình chung</button>
             </div>
 
-            <!-- CÁC SECTION KHÁC (giữ nguyên nội dung từ bản trước) -->
+            <!-- COLORS -->
             <div id="section-color" class="section">
                 <h2>🎨 Màu sắc trang chủ</h2>
                 <div class="form-group"><label>Màu nền</label><input type="color" id="bgBody" class="color-input"></div>
@@ -218,6 +171,7 @@
                 <button id="resetColorBtn" style="background:#d98c5f;">🔄 Reset mặc định</button>
             </div>
 
+            <!-- ADMIN COLORS -->
             <div id="section-admincolor" class="section">
                 <h2>🖌️ Màu trang quản trị</h2>
                 <div class="form-group"><label>Nền tổng</label><input type="color" id="adminBg" class="color-input"></div>
@@ -229,6 +183,7 @@
                 <button id="saveAdminColorBtn">💾 Lưu màu quản trị</button>
             </div>
 
+            <!-- FONTS -->
             <div id="section-font" class="section">
                 <h2>🔤 Font chữ & cỡ chữ</h2>
                 <div class="grid-2cols">
@@ -255,6 +210,7 @@
                 <button id="saveFontBtn">💾 Lưu font chữ</button>
             </div>
 
+            <!-- PASSWORD -->
             <div id="section-password" class="section">
                 <h2>🔒 Đổi mật khẩu quản trị</h2>
                 <div class="form-group"><label>Mật khẩu hiện tại</label><input type="password" id="oldPassword" placeholder="Nhập mật khẩu cũ"></div>
@@ -263,6 +219,7 @@
                 <button id="changePasswordBtn">💾 Đổi mật khẩu</button>
             </div>
 
+            <!-- PAYMENT & FOOTER -->
             <div id="section-payment" class="section">
                 <h2>💳 Nội dung thanh toán & footer</h2>
                 <div class="form-group"><label>Văn bản modal thanh toán</label><textarea id="paymentText" rows="3"></textarea></div>
@@ -272,35 +229,41 @@
                 <button id="savePaymentBtn">💾 Lưu</button>
             </div>
 
+            <!-- PAYMENT IMAGES -->
             <div id="section-paymentImages" class="section">
                 <h2>🖼️ Ảnh thanh toán (QR, hướng dẫn)</h2>
                 <div class="form-group"><label>Ảnh giỏ hàng (URL / upload)</label><input type="text" id="paymentImageCartUrl"><input type="file" id="paymentImageCartUpload" accept="image/*"><button id="savePaymentImageCartBtn">Lưu</button><button id="clearPaymentImageCartBtn">Xóa</button><div id="paymentImageCartPreview"></div></div>
                 <div class="form-group"><label>Ảnh thuê máy (URL / upload)</label><input type="text" id="paymentImageRentUrl"><input type="file" id="paymentImageRentUpload" accept="image/*"><button id="savePaymentImageRentBtn">Lưu</button><button id="clearPaymentImageRentBtn">Xóa</button><div id="paymentImageRentPreview"></div></div>
             </div>
 
+            <!-- BANNER -->
             <div id="section-banner" class="section">
                 <h2>🖼️ Banner chính</h2>
                 <div class="form-group"><input type="text" id="bannerUrlInput" placeholder="URL ảnh"><input type="file" id="bannerUpload" accept="image/*"><button id="updateBannerBtn">Cập nhật</button><div id="bannerPreviewArea"></div></div>
             </div>
 
+            <!-- CATEGORIES -->
             <div id="section-category" class="section">
                 <h2>📂 Danh mục</h2>
                 <div class="form-group"><input type="text" id="catName" placeholder="Tên mới"><button id="addCatBtn">➕ Thêm</button></div>
                 <div id="catList" class="cat-list"></div>
             </div>
 
+            <!-- PRODUCTS -->
             <div id="section-product" class="section">
                 <h2>📦 Sản phẩm (có tồn kho)</h2>
                 <div style="display:flex; flex-wrap:wrap; gap:8px;"><input type="text" id="prodName" placeholder="Tên"><input type="number" id="prodPrice" placeholder="Giá"><input type="number" id="prodStock" placeholder="Tồn kho"><input type="text" id="prodImage" placeholder="URL ảnh"><input type="file" id="prodImageFile" accept="image/*"><select id="prodCategory"></select><button id="addOrUpdateBtn">💾 Lưu</button><input type="hidden" id="editId"></div>
                 <div id="productList" class="product-list"></div>
             </div>
 
+            <!-- RENTALS -->
             <div id="section-rental" class="section">
                 <h2>📸 Quản lý máy cho thuê</h2>
                 <div style="display:flex; flex-wrap:wrap; gap:8px;"><input type="text" id="rentName" placeholder="Tên máy"><input type="number" id="rentPrice" placeholder="Giá/ngày"><input type="number" id="rentStock" placeholder="Số lượng"><input type="text" id="rentImage" placeholder="URL ảnh"><input type="file" id="rentImageFile" accept="image/*"><button id="addRentBtn">➕ Thêm máy</button><input type="hidden" id="editRentId"></div>
                 <div id="rentalList" class="rental-list"></div>
             </div>
 
+            <!-- ORDERS -->
             <div id="section-orders" class="section">
                 <h2>📦 Quản lý đơn hàng</h2>
                 <div id="ordersList" class="orders-list"></div>
@@ -310,7 +273,27 @@
 </div>
 
 <script>
-    // ==================== DANH SÁCH FONT ====================
+    // ==================== FIREBASE CONFIG ====================
+    const firebaseConfig = {
+        apiKey: "AIzaSyAIpksz1c9IkAC9qAm7cxafgQTc6jwQGoI",
+        authDomain: "banhsungbo.firebaseapp.com",
+        projectId: "banhsungbo",
+        storageBucket: "banhsungbo.firebasestorage.app",
+        messagingSenderId: "90601506156",
+        appId: "1:90601506156:web:2c037afcb5e829200b1f49",
+        measurementId: "G-MVBNWQH994"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // ==================== BIẾN TOÀN CỤC ====================
+    let config = {};
+    let categories = [];
+    let products = [];
+    let rentItems = [];
+    let adminPassword = 'admin123'; // sẽ đọc từ Firebase
+
+    // Danh sách font
     const fontOptions = [
         { value: "'Quicksand', sans-serif", name: "Quicksand" },
         { value: "'Poppins', sans-serif", name: "Poppins" },
@@ -325,87 +308,170 @@
         { value: "'Source Sans 3', sans-serif", name: "Source Sans 3" },
         { value: "'DM Sans', sans-serif", name: "DM Sans" },
         { value: "'Fredoka One', cursive", name: "Fredoka One" },
-        { value: "'iCiel Crocante', cursive", name: "iCiel Crocante (Việt hóa)" }
+        { value: "'iCiel Crocante', cursive", name: "iCiel Crocante" }
     ];
 
     function populateFontSelects() {
-        const selectIds = ['mainFontSelect', 'headerFontSelect', 'categoryFontSelect', 'productNameFontSelect', 'productPriceFontSelect', 'cartTitleFontSelect', 'buttonFontSelect', 'footerFontSelect'];
-        selectIds.forEach(id => {
-            const select = document.getElementById(id);
-            if (select) {
-                select.innerHTML = '';
+        const ids = ['mainFontSelect', 'headerFontSelect', 'categoryFontSelect', 'productNameFontSelect', 'productPriceFontSelect', 'cartTitleFontSelect', 'buttonFontSelect', 'footerFontSelect'];
+        ids.forEach(id => {
+            const sel = document.getElementById(id);
+            if (sel) {
+                sel.innerHTML = '';
                 fontOptions.forEach(opt => {
                     const option = document.createElement('option');
                     option.value = opt.value;
-                    option.textContent = opt.name;
-                    select.appendChild(option);
+                    option.text = opt.name;
+                    sel.appendChild(option);
                 });
             }
         });
     }
 
-    let config = {}, categories = [], products = [], rentItems = [];
-    let adminPassword = 'admin123';
-
-    function loadAdminPassword() {
-        const stored = localStorage.getItem('admin_password_hash');
-        if (stored) adminPassword = atob(stored);
-        else { localStorage.setItem('admin_password_hash', btoa('admin123')); adminPassword = 'admin123'; }
+    // ==================== LOAD DATA FROM FIREBASE ====================
+    async function loadConfig() {
+        const snap = await database.ref('config').once('value');
+        if (snap.exists()) config = snap.val();
+        else {
+            config = {
+                shopName: "FilmStore Cartoon", siteTitle: "FilmStore Cartoon", adminTitle: "Quản trị - FilmStore Pro",
+                logoUrl: "", mainBannerUrl: "", facebookCheckout: "", instagramCheckout: "",
+                paymentText: "Chọn kênh để hoàn tất đơn hàng:", footerText: "© 2025 FilmStore Cartoon", rentButtonLabel: "📸 Thuê máy ảnh",
+                paymentImageCart: "", paymentImageRent: "", supportFacebook: "", supportInstagram: "",
+                notificationText: "🎉 Chào mừng bạn đến với FilmStore! 🎉\n🎞️ Cửa hàng phim và máy ảnh chất lượng. Giao hàng toàn quốc.",
+                notificationBg: "#ffefc0",
+                theme: { bgBody: "#fff9ef", headerBg: "#ffe5b4", headerText: "#d43f1f", primaryBtn: "#f0bc6e", borderDark: "#1f1a12", cartBg: "#fff1df", footerBg: "#2d2b1f", footerText: "#ffecb3" },
+                adminTheme: { bg: "#e9e2d0", sidebarBg: "#2d2b1f", sidebarText: "#ffecb3", contentBg: "#fff6e8", border: "#1f1a10", btn: "#f0bc6e" },
+                fontConfig: {
+                    mainFont: "'Quicksand', sans-serif", headerFont: "'Fredoka One', cursive", categoryFont: "'Quicksand', sans-serif",
+                    productNameFont: "'Quicksand', sans-serif", productPriceFont: "'Quicksand', sans-serif", cartTitleFont: "'Quicksand', sans-serif",
+                    buttonFont: "'Quicksand', sans-serif", footerFont: "'Quicksand', sans-serif",
+                    baseFontSize: 16, productNameSize: 20, productPriceSize: 22, cartTitleSize: 26, buttonFontSize: 16,
+                    categoryFontSize: 16, footerFontSize: 14, productWeight: 700
+                }
+            };
+            await database.ref('config').set(config);
+        }
+        // Cập nhật form
+        document.getElementById('shopNameInput').value = config.shopName || '';
+        document.getElementById('siteTitleInput').value = config.siteTitle || '';
+        document.getElementById('adminTitleInput').value = config.adminTitle || '';
+        document.getElementById('logoUrlInput').value = config.logoUrl || '';
+        document.getElementById('bannerUrlInput').value = config.mainBannerUrl || '';
+        document.getElementById('fbLinkInput').value = config.facebookCheckout || '';
+        document.getElementById('igLinkInput').value = config.instagramCheckout || '';
+        document.getElementById('paymentText').value = config.paymentText || '';
+        document.getElementById('footerTextInput').value = config.footerText || '';
+        document.getElementById('rentButtonLabelInput').value = config.rentButtonLabel || '';
+        document.getElementById('paymentImageCartUrl').value = config.paymentImageCart || '';
+        document.getElementById('paymentImageRentUrl').value = config.paymentImageRent || '';
+        document.getElementById('supportFacebookInput').value = config.supportFacebook || '';
+        document.getElementById('supportInstagramInput').value = config.supportInstagram || '';
+        document.getElementById('notificationTextInput').value = config.notificationText || '';
+        document.getElementById('notificationBgInput').value = config.notificationBg || '#ffefc0';
+        const t = config.theme || {};
+        document.getElementById('bgBody').value = t.bgBody || '#fff9ef';
+        document.getElementById('headerBg').value = t.headerBg || '#ffe5b4';
+        document.getElementById('headerText').value = t.headerText || '#d43f1f';
+        document.getElementById('primaryBtn').value = t.primaryBtn || '#f0bc6e';
+        document.getElementById('borderDark').value = t.borderDark || '#1f1a12';
+        document.getElementById('cartBg').value = t.cartBg || '#fff1df';
+        document.getElementById('footerBg').value = t.footerBg || '#2d2b1f';
+        document.getElementById('footerTextColor').value = t.footerText || '#ffecb3';
+        const at = config.adminTheme || {};
+        document.getElementById('adminBg').value = at.bg || '#e9e2d0';
+        document.getElementById('adminSidebarBg').value = at.sidebarBg || '#2d2b1f';
+        document.getElementById('adminSidebarText').value = at.sidebarText || '#ffecb3';
+        document.getElementById('adminContentBg').value = at.contentBg || '#fff6e8';
+        document.getElementById('adminBorder').value = at.border || '#1f1a10';
+        document.getElementById('adminBtn').value = at.btn || '#f0bc6e';
+        const fc = config.fontConfig || {};
+        document.getElementById('mainFontSelect').value = fc.mainFont || "'Quicksand', sans-serif";
+        document.getElementById('headerFontSelect').value = fc.headerFont || "'Fredoka One', cursive";
+        document.getElementById('categoryFontSelect').value = fc.categoryFont || "'Quicksand', sans-serif";
+        document.getElementById('productNameFontSelect').value = fc.productNameFont || "'Quicksand', sans-serif";
+        document.getElementById('productPriceFontSelect').value = fc.productPriceFont || "'Quicksand', sans-serif";
+        document.getElementById('cartTitleFontSelect').value = fc.cartTitleFont || "'Quicksand', sans-serif";
+        document.getElementById('buttonFontSelect').value = fc.buttonFont || "'Quicksand', sans-serif";
+        document.getElementById('footerFontSelect').value = fc.footerFont || "'Quicksand', sans-serif";
+        document.getElementById('baseFontSize').value = fc.baseFontSize || 16;
+        document.getElementById('productNameSize').value = fc.productNameSize || 20;
+        document.getElementById('productPriceSize').value = fc.productPriceSize || 22;
+        document.getElementById('cartTitleSize').value = fc.cartTitleSize || 26;
+        document.getElementById('buttonFontSize').value = fc.buttonFontSize || 16;
+        document.getElementById('categoryFontSize').value = fc.categoryFontSize || 16;
+        document.getElementById('footerFontSize').value = fc.footerFontSize || 14;
+        document.getElementById('productWeight').value = fc.productWeight || 700;
+        if (config.logoUrl) {
+            document.getElementById('logoPreview').src = config.logoUrl;
+            document.getElementById('logoPreview').style.display = 'block';
+        }
+        updateSidebarTitle();
+        updateAdminTitle();
+        updateSocialLinks();
     }
 
-    function saveAdminPassword(newPass) {
-        adminPassword = newPass;
-        localStorage.setItem('admin_password_hash', btoa(newPass));
-        alert('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
-        sessionStorage.removeItem('admin_auth');
-        checkAuth();
+    async function loadCategories() {
+        const snap = await database.ref('categories').once('value');
+        if (snap.exists()) categories = Object.values(snap.val());
+        else categories = [];
+        renderCategoryList();
+        renderCategorySelect();
     }
 
-    function checkAuth() {
-        if (sessionStorage.getItem('admin_auth') === 'true') {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('adminApp').style.display = 'flex';
-            loadAllData();
-            applyAdminTheme();
+    async function loadProducts() {
+        const snap = await database.ref('products').once('value');
+        if (snap.exists()) products = Object.values(snap.val());
+        else products = [];
+        renderProductList();
+    }
+
+    async function loadRentals() {
+        const snap = await database.ref('rentals').once('value');
+        if (snap.exists()) rentItems = Object.values(snap.val());
+        else rentItems = [];
+        renderRentalList();
+    }
+
+    async function loadOrders() {
+        const snap = await database.ref('orders').once('value');
+        if (snap.exists()) {
+            const ordersObj = snap.val();
+            const orders = Object.values(ordersObj).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+            renderOrders(orders);
+            updateOrderBadge(orders);
         } else {
-            document.getElementById('loginSection').style.display = 'flex';
-            document.getElementById('adminApp').style.display = 'none';
+            renderOrders([]);
+            updateOrderBadge([]);
         }
     }
 
-    function updateSidebarTitle() {
-        const titleSpan = document.getElementById('sidebarTitle');
-        if (titleSpan && config.shopName) titleSpan.innerText = config.shopName;
-    }
-
-    function updateSocialLinks() {
-        const fbLink = document.getElementById('adminFbLink');
-        const igLink = document.getElementById('adminIgLink');
-        if (fbLink) fbLink.href = config.facebookCheckout || '#';
-        if (igLink) igLink.href = config.instagramCheckout || '#';
-    }
-
-    function updateOrderBadge() {
-        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    function updateOrderBadge(orders) {
         const pendingCount = orders.filter(o => o.status === 'Chờ duyệt').length;
         const badge = document.getElementById('orderNotificationBadge');
         if (badge) {
-            if (pendingCount > 0) { badge.style.display = 'inline-block'; badge.innerText = pendingCount; }
-            else badge.style.display = 'none';
+            if (pendingCount > 0) {
+                badge.style.display = 'inline-block';
+                badge.innerText = pendingCount;
+            } else badge.style.display = 'none';
         }
     }
 
-    function renderOrders() {
-        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    function renderOrders(orders) {
         const container = document.getElementById('ordersList');
         if (!container) return;
-        if (orders.length === 0) { container.innerHTML = '<p>Chưa có đơn hàng nào.</p>'; return; }
+        if (!orders || orders.length === 0) {
+            container.innerHTML = '<p>Chưa có đơn hàng nào.</p>';
+            return;
+        }
         let html = '';
         orders.forEach(order => {
             const statusClass = order.status === 'Đã duyệt' ? 'approved' : '';
             let itemsHtml = '';
-            if (order.type === 'mua_hang') itemsHtml = order.items.map(i => `${i.name} x ${i.quantity}`).join(', ');
-            else itemsHtml = `Thuê ${order.rental.name} - ${order.rental.days} ngày - ${order.rental.total.toLocaleString('vi-VN')}₫`;
+            if (order.type === 'mua_hang') {
+                itemsHtml = order.items.map(i => `${i.name} x ${i.quantity}`).join(', ');
+            } else {
+                itemsHtml = `Thuê ${order.rental.name} - ${order.rental.days} ngày - ${order.rental.total.toLocaleString('vi-VN')}₫`;
+            }
             html += `<div class="order-item">
                         <div class="order-details">
                             <strong>Đơn #${order.id}</strong><br>
@@ -425,101 +491,42 @@
         });
         container.innerHTML = html;
         document.querySelectorAll('.approve-order').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = parseInt(btn.dataset.id);
-                let orders = JSON.parse(localStorage.getItem('orders') || '[]');
-                const idx = orders.findIndex(o => o.id === id);
-                if (idx !== -1) { orders[idx].status = 'Đã duyệt'; localStorage.setItem('orders', JSON.stringify(orders)); renderOrders(); updateOrderBadge(); }
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                const orderRef = database.ref('orders/' + id);
+                const snap = await orderRef.once('value');
+                if (snap.exists()) {
+                    const orderData = snap.val();
+                    orderData.status = 'Đã duyệt';
+                    await orderRef.set(orderData);
+                    loadOrders(); // refresh
+                }
             });
         });
         document.querySelectorAll('.delete-order').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
                 if (confirm('Xóa đơn hàng này?')) {
-                    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
-                    orders = orders.filter(o => o.id !== parseInt(btn.dataset.id));
-                    localStorage.setItem('orders', JSON.stringify(orders)); renderOrders(); updateOrderBadge();
+                    await database.ref('orders/' + btn.dataset.id).remove();
+                    loadOrders();
                 }
             });
         });
     }
 
-    function loadAllData() { loadConfig(); loadCategories(); loadProducts(); loadRentals(); renderCategorySelect(); showBannerPreview(); renderCategoryList(); renderProductList(); renderRentalList(); showPaymentImagePreviews(); updateOrderBadge(); updateSocialLinks(); }
-
-    function loadConfig() {
-        const stored = localStorage.getItem('site_config');
-        if (stored) config = JSON.parse(stored);
-        else {
-            config = {
-                shopName: "FilmStore Cartoon", logoUrl: "", mainBannerUrl: "", facebookCheckout: "", instagramCheckout: "",
-                paymentText: "Chọn kênh để hoàn tất đơn hàng:", footerText: "© 2025 FilmStore Cartoon", rentButtonLabel: "📸 Thuê máy ảnh",
-                paymentImageCart: "", paymentImageRent: "", supportFacebook: "", supportInstagram: "",
-                notificationText: "🎉 Chào mừng bạn đến với FilmStore! 🎉\n🎞️ Cửa hàng phim và máy ảnh chất lượng. Giao hàng toàn quốc.",
-                notificationBg: "#ffefc0",
-                theme: { bgBody: "#fff9ef", headerBg: "#ffe5b4", headerText: "#d43f1f", primaryBtn: "#f0bc6e", borderDark: "#1f1a12", cartBg: "#fff1df", footerBg: "#2d2b1f", footerText: "#ffecb3" },
-                adminTheme: { bg: "#e9e2d0", sidebarBg: "#2d2b1f", sidebarText: "#ffecb3", contentBg: "#fff6e8", border: "#1f1a10", btn: "#f0bc6e" },
-                fontConfig: {
-                    mainFont: "'Quicksand', sans-serif", headerFont: "'Fredoka One', cursive", categoryFont: "'Quicksand', sans-serif",
-                    productNameFont: "'Quicksand', sans-serif", productPriceFont: "'Quicksand', sans-serif", cartTitleFont: "'Quicksand', sans-serif",
-                    buttonFont: "'Quicksand', sans-serif", footerFont: "'Quicksand', sans-serif",
-                    baseFontSize: 16, productNameSize: 20, productPriceSize: 22, cartTitleSize: 26, buttonFontSize: 16,
-                    categoryFontSize: 16, footerFontSize: 14, productWeight: 700
-                }
-            };
-            localStorage.setItem('site_config', JSON.stringify(config));
-        }
-        document.getElementById('shopNameInput').value = config.shopName || '';
-        document.getElementById('logoUrlInput').value = config.logoUrl || '';
-        document.getElementById('bannerUrlInput').value = config.mainBannerUrl || '';
-        document.getElementById('fbLinkInput').value = config.facebookCheckout || '';
-        document.getElementById('igLinkInput').value = config.instagramCheckout || '';
-        document.getElementById('paymentText').value = config.paymentText || '';
-        document.getElementById('footerTextInput').value = config.footerText || '';
-        document.getElementById('rentButtonLabelInput').value = config.rentButtonLabel || "📸 Thuê máy ảnh";
-        document.getElementById('paymentImageCartUrl').value = config.paymentImageCart || '';
-        document.getElementById('paymentImageRentUrl').value = config.paymentImageRent || '';
-        document.getElementById('supportFacebookInput').value = config.supportFacebook || '';
-        document.getElementById('supportInstagramInput').value = config.supportInstagram || '';
-        document.getElementById('notificationTextInput').value = config.notificationText || "🎉 Chào mừng bạn đến với FilmStore! 🎉\n🎞️ Cửa hàng phim và máy ảnh chất lượng. Giao hàng toàn quốc.";
-        document.getElementById('notificationBgInput').value = config.notificationBg || "#ffefc0";
-        const t = config.theme || {};
-        document.getElementById('bgBody').value = t.bgBody || "#fff9ef";
-        document.getElementById('headerBg').value = t.headerBg || "#ffe5b4";
-        document.getElementById('headerText').value = t.headerText || "#d43f1f";
-        document.getElementById('primaryBtn').value = t.primaryBtn || "#f0bc6e";
-        document.getElementById('borderDark').value = t.borderDark || "#1f1a12";
-        document.getElementById('cartBg').value = t.cartBg || "#fff1df";
-        document.getElementById('footerBg').value = t.footerBg || "#2d2b1f";
-        document.getElementById('footerTextColor').value = t.footerText || "#ffecb3";
-        const at = config.adminTheme || {};
-        document.getElementById('adminBg').value = at.bg || "#e9e2d0";
-        document.getElementById('adminSidebarBg').value = at.sidebarBg || "#2d2b1f";
-        document.getElementById('adminSidebarText').value = at.sidebarText || "#ffecb3";
-        document.getElementById('adminContentBg').value = at.contentBg || "#fff6e8";
-        document.getElementById('adminBorder').value = at.border || "#1f1a10";
-        document.getElementById('adminBtn').value = at.btn || "#f0bc6e";
-        const fc = config.fontConfig || {};
-        document.getElementById('mainFontSelect').value = fc.mainFont || "'Quicksand', sans-serif";
-        document.getElementById('headerFontSelect').value = fc.headerFont || "'Fredoka One', cursive";
-        document.getElementById('categoryFontSelect').value = fc.categoryFont || "'Quicksand', sans-serif";
-        document.getElementById('productNameFontSelect').value = fc.productNameFont || "'Quicksand', sans-serif";
-        document.getElementById('productPriceFontSelect').value = fc.productPriceFont || "'Quicksand', sans-serif";
-        document.getElementById('cartTitleFontSelect').value = fc.cartTitleFont || "'Quicksand', sans-serif";
-        document.getElementById('buttonFontSelect').value = fc.buttonFont || "'Quicksand', sans-serif";
-        document.getElementById('footerFontSelect').value = fc.footerFont || "'Quicksand', sans-serif";
-        document.getElementById('baseFontSize').value = fc.baseFontSize || 16;
-        document.getElementById('productNameSize').value = fc.productNameSize || 20;
-        document.getElementById('productPriceSize').value = fc.productPriceSize || 22;
-        document.getElementById('cartTitleSize').value = fc.cartTitleSize || 26;
-        document.getElementById('buttonFontSize').value = fc.buttonFontSize || 16;
-        document.getElementById('categoryFontSize').value = fc.categoryFontSize || 16;
-        document.getElementById('footerFontSize').value = fc.footerFontSize || 14;
-        document.getElementById('productWeight').value = fc.productWeight || 700;
-        if (config.logoUrl) { document.getElementById('logoPreview').src = config.logoUrl; document.getElementById('logoPreview').style.display = 'block'; }
-        updateSidebarTitle();
-        updateSocialLinks();
-        updateOrderBadge();
+    // ==================== UI UTILITIES ====================
+    function updateSidebarTitle() {
+        const titleSpan = document.getElementById('sidebarTitle');
+        if (titleSpan && config.shopName) titleSpan.innerText = config.shopName;
     }
-
+    function updateAdminTitle() {
+        document.title = config.adminTitle || "Quản trị - FilmStore Pro";
+    }
+    function updateSocialLinks() {
+        const fb = document.getElementById('adminFbLink');
+        const ig = document.getElementById('adminIgLink');
+        if (fb) fb.href = config.facebookCheckout || '#';
+        if (ig) ig.href = config.instagramCheckout || '#';
+    }
     function applyAdminTheme() {
         const at = config.adminTheme || {};
         const root = document.documentElement.style;
@@ -531,9 +538,11 @@
         root.setProperty('--admin-btn', at.btn);
     }
 
-    // Hàm lưu tổng quan (bao gồm notification và support links)
-    function saveGeneral() {
+    // ==================== SAVE FUNCTIONS ====================
+    async function saveGeneral() {
         config.shopName = document.getElementById('shopNameInput').value;
+        config.siteTitle = document.getElementById('siteTitleInput').value;
+        config.adminTitle = document.getElementById('adminTitleInput').value;
         config.rentButtonLabel = document.getElementById('rentButtonLabelInput').value;
         config.supportFacebook = document.getElementById('supportFacebookInput').value;
         config.supportInstagram = document.getElementById('supportInstagramInput').value;
@@ -541,135 +550,485 @@
         config.notificationBg = document.getElementById('notificationBgInput').value;
         let logoUrl = document.getElementById('logoUrlInput').value;
         const file = document.getElementById('logoUpload').files[0];
-        if (file) { const reader = new FileReader(); reader.onload = e => { config.logoUrl = e.target.result; finalSaveGeneral(); }; reader.readAsDataURL(file); }
-        else { config.logoUrl = logoUrl; finalSaveGeneral(); }
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                config.logoUrl = e.target.result;
+                await database.ref('config').set(config);
+                alert('Đã lưu cấu hình chung');
+                loadConfig();
+            };
+            reader.readAsDataURL(file);
+        } else {
+            config.logoUrl = logoUrl;
+            await database.ref('config').set(config);
+            alert('Đã lưu cấu hình chung');
+            loadConfig();
+        }
     }
-    function finalSaveGeneral() { localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu cấu hình chung'); loadConfig(); }
 
-    function saveColor() {
+    async function saveColor() {
         config.theme = {
-            bgBody: document.getElementById('bgBody').value, headerBg: document.getElementById('headerBg').value,
-            headerText: document.getElementById('headerText').value, primaryBtn: document.getElementById('primaryBtn').value,
-            borderDark: document.getElementById('borderDark').value, cartBg: document.getElementById('cartBg').value,
-            footerBg: document.getElementById('footerBg').value, footerText: document.getElementById('footerTextColor').value
+            bgBody: document.getElementById('bgBody').value,
+            headerBg: document.getElementById('headerBg').value,
+            headerText: document.getElementById('headerText').value,
+            primaryBtn: document.getElementById('primaryBtn').value,
+            borderDark: document.getElementById('borderDark').value,
+            cartBg: document.getElementById('cartBg').value,
+            footerBg: document.getElementById('footerBg').value,
+            footerText: document.getElementById('footerTextColor').value
         };
-        localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu màu web');
+        await database.ref('config').set(config);
+        alert('Đã lưu màu web');
     }
-    function resetColor() {
-        const defaultTheme = { bgBody: "#fff9ef", headerBg: "#ffe5b4", headerText: "#d43f1f", primaryBtn: "#f0bc6e", borderDark: "#1f1a12", cartBg: "#fff1df", footerBg: "#2d2b1f", footerText: "#ffecb3" };
-        config.theme = defaultTheme; localStorage.setItem('site_config', JSON.stringify(config)); loadConfig(); alert('Đã reset màu về mặc định');
+    async function resetColor() {
+        const defaultTheme = {
+            bgBody: "#fff9ef", headerBg: "#ffe5b4", headerText: "#d43f1f",
+            primaryBtn: "#f0bc6e", borderDark: "#1f1a12", cartBg: "#fff1df",
+            footerBg: "#2d2b1f", footerText: "#ffecb3"
+        };
+        config.theme = defaultTheme;
+        await database.ref('config').set(config);
+        alert('Đã reset màu về mặc định');
+        loadConfig();
     }
-    function saveAdminColor() {
+    async function saveAdminColor() {
         config.adminTheme = {
-            bg: document.getElementById('adminBg').value, sidebarBg: document.getElementById('adminSidebarBg').value,
-            sidebarText: document.getElementById('adminSidebarText').value, contentBg: document.getElementById('adminContentBg').value,
-            border: document.getElementById('adminBorder').value, btn: document.getElementById('adminBtn').value
+            bg: document.getElementById('adminBg').value,
+            sidebarBg: document.getElementById('adminSidebarBg').value,
+            sidebarText: document.getElementById('adminSidebarText').value,
+            contentBg: document.getElementById('adminContentBg').value,
+            border: document.getElementById('adminBorder').value,
+            btn: document.getElementById('adminBtn').value
         };
-        localStorage.setItem('site_config', JSON.stringify(config)); applyAdminTheme(); alert('Đã lưu màu quản trị');
+        await database.ref('config').set(config);
+        applyAdminTheme();
+        alert('Đã lưu màu quản trị');
     }
-    function saveFont() {
+    async function saveFont() {
         config.fontConfig = {
-            mainFont: document.getElementById('mainFontSelect').value, headerFont: document.getElementById('headerFontSelect').value,
-            categoryFont: document.getElementById('categoryFontSelect').value, productNameFont: document.getElementById('productNameFontSelect').value,
-            productPriceFont: document.getElementById('productPriceFontSelect').value, cartTitleFont: document.getElementById('cartTitleFontSelect').value,
-            buttonFont: document.getElementById('buttonFontSelect').value, footerFont: document.getElementById('footerFontSelect').value,
-            baseFontSize: parseInt(document.getElementById('baseFontSize').value), productNameSize: parseInt(document.getElementById('productNameSize').value),
-            productPriceSize: parseInt(document.getElementById('productPriceSize').value), cartTitleSize: parseInt(document.getElementById('cartTitleSize').value),
-            buttonFontSize: parseInt(document.getElementById('buttonFontSize').value), categoryFontSize: parseInt(document.getElementById('categoryFontSize').value),
-            footerFontSize: parseInt(document.getElementById('footerFontSize').value), productWeight: document.getElementById('productWeight').value
+            mainFont: document.getElementById('mainFontSelect').value,
+            headerFont: document.getElementById('headerFontSelect').value,
+            categoryFont: document.getElementById('categoryFontSelect').value,
+            productNameFont: document.getElementById('productNameFontSelect').value,
+            productPriceFont: document.getElementById('productPriceFontSelect').value,
+            cartTitleFont: document.getElementById('cartTitleFontSelect').value,
+            buttonFont: document.getElementById('buttonFontSelect').value,
+            footerFont: document.getElementById('footerFontSelect').value,
+            baseFontSize: parseInt(document.getElementById('baseFontSize').value),
+            productNameSize: parseInt(document.getElementById('productNameSize').value),
+            productPriceSize: parseInt(document.getElementById('productPriceSize').value),
+            cartTitleSize: parseInt(document.getElementById('cartTitleSize').value),
+            buttonFontSize: parseInt(document.getElementById('buttonFontSize').value),
+            categoryFontSize: parseInt(document.getElementById('categoryFontSize').value),
+            footerFontSize: parseInt(document.getElementById('footerFontSize').value),
+            productWeight: document.getElementById('productWeight').value
         };
-        localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu font');
+        await database.ref('config').set(config);
+        alert('Đã lưu font');
     }
-    function savePayment() {
+    async function savePayment() {
         config.facebookCheckout = document.getElementById('fbLinkInput').value;
         config.instagramCheckout = document.getElementById('igLinkInput').value;
         config.paymentText = document.getElementById('paymentText').value;
         config.footerText = document.getElementById('footerTextInput').value;
-        localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu'); updateSocialLinks();
+        await database.ref('config').set(config);
+        alert('Đã lưu');
+        updateSocialLinks();
     }
 
-    // Ảnh thanh toán, banner, category, product, rental (giữ nguyên)
-    function savePaymentImage(type) {
+    async function savePaymentImage(type) {
         let url = document.getElementById(type === 'cart' ? 'paymentImageCartUrl' : 'paymentImageRentUrl').value.trim();
         const file = document.getElementById(type === 'cart' ? 'paymentImageCartUpload' : 'paymentImageRentUpload');
         if (file.files && file.files[0]) {
             const reader = new FileReader();
-            reader.onload = e => { config[`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`] = e.target.result; finalSaveImage(); };
+            reader.onload = async (e) => {
+                config[`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`] = e.target.result;
+                await database.ref('config').set(config);
+                alert('Đã lưu ảnh');
+                showPaymentImagePreviews();
+            };
             reader.readAsDataURL(file.files[0]);
-        } else if (url) { config[`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`] = url; finalSaveImage(); }
-        else alert('Nhập URL hoặc chọn ảnh');
+        } else if (url) {
+            config[`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`] = url;
+            await database.ref('config').set(config);
+            alert('Đã lưu ảnh');
+            showPaymentImagePreviews();
+        } else alert('Nhập URL hoặc chọn ảnh');
     }
-    function finalSaveImage() { localStorage.setItem('site_config', JSON.stringify(config)); alert('Đã lưu ảnh'); showPaymentImagePreviews(); }
-    function clearPaymentImage(type) { config[`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`] = ""; localStorage.setItem('site_config', JSON.stringify(config)); document.getElementById(type === 'cart' ? 'paymentImageCartUrl' : 'paymentImageRentUrl').value = ''; showPaymentImagePreviews(); alert('Đã xóa ảnh'); }
+    async function clearPaymentImage(type) {
+        config[`paymentImage${type === 'cart' ? 'Cart' : 'Rent'}`] = '';
+        await database.ref('config').set(config);
+        document.getElementById(type === 'cart' ? 'paymentImageCartUrl' : 'paymentImageRentUrl').value = '';
+        showPaymentImagePreviews();
+        alert('Đã xóa ảnh');
+    }
     function showPaymentImagePreviews() {
         const cartPreview = document.getElementById('paymentImageCartPreview');
         const rentPreview = document.getElementById('paymentImageRentPreview');
-        if (config.paymentImageCart) cartPreview.innerHTML = `<img src="${config.paymentImageCart}" class="payment-image-preview">`;
-        else cartPreview.innerHTML = '<p>Chưa có ảnh</p>';
-        if (config.paymentImageRent) rentPreview.innerHTML = `<img src="${config.paymentImageRent}" class="payment-image-preview">`;
-        else rentPreview.innerHTML = '<p>Chưa có ảnh</p>';
+        cartPreview.innerHTML = config.paymentImageCart ? `<img src="${config.paymentImageCart}" class="payment-image-preview">` : '<p>Chưa có ảnh</p>';
+        rentPreview.innerHTML = config.paymentImageRent ? `<img src="${config.paymentImageRent}" class="payment-image-preview">` : '<p>Chưa có ảnh</p>';
     }
 
-    function updateBanner() {
+    async function updateBanner() {
         let url = document.getElementById('bannerUrlInput').value.trim();
         const file = document.getElementById('bannerUpload').files[0];
-        if (file) { const reader = new FileReader(); reader.onload = e => { config.mainBannerUrl = e.target.result; finalSaveBanner(); }; reader.readAsDataURL(file); }
-        else if (url) { config.mainBannerUrl = url; finalSaveBanner(); }
-        else alert('Nhập URL hoặc chọn ảnh');
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                config.mainBannerUrl = e.target.result;
+                await database.ref('config').set(config);
+                alert('Banner cập nhật');
+                showBannerPreview();
+            };
+            reader.readAsDataURL(file);
+        } else if (url) {
+            config.mainBannerUrl = url;
+            await database.ref('config').set(config);
+            alert('Banner cập nhật');
+            showBannerPreview();
+        } else alert('Nhập URL hoặc chọn ảnh');
     }
-    function finalSaveBanner() { localStorage.setItem('site_config', JSON.stringify(config)); alert('Banner cập nhật'); showBannerPreview(); document.getElementById('bannerUrlInput').value = config.mainBannerUrl; document.getElementById('bannerUpload').value = ''; }
-    function showBannerPreview() { const area = document.getElementById('bannerPreviewArea'); if (config.mainBannerUrl) area.innerHTML = `<img src="${config.mainBannerUrl}" style="max-width:200px; border-radius:20px;">`; else area.innerHTML = '<p>Chưa có banner</p>'; }
+    function showBannerPreview() {
+        const area = document.getElementById('bannerPreviewArea');
+        if (config.mainBannerUrl) area.innerHTML = `<img src="${config.mainBannerUrl}" style="max-width:200px; border-radius:20px;">`;
+        else area.innerHTML = '<p>Chưa có banner</p>';
+    }
 
-    // Categories, Products, Rentals (giữ nguyên logic)
-    function loadCategories() { const stored = localStorage.getItem('site_categories'); categories = stored ? JSON.parse(stored) : [{ id:1, name:"📷 Phim máy ảnh" }, { id:2, name:"📸 Máy ảnh" }]; renderCategoryList(); renderCategorySelect(); }
-    function saveCategories() { localStorage.setItem('site_categories', JSON.stringify(categories)); }
-    function renderCategoryList() { let html = ''; categories.forEach((cat,idx)=>{ html+=`<div class="cat-item"><div><strong>${idx+1}.</strong> ${escapeHtml(cat.name)}</div><div>${idx>0?`<button class="move-up" data-id="${cat.id}">⬆️</button>`:''}${idx<categories.length-1?`<button class="move-down" data-id="${cat.id}">⬇️</button>`:''}<button class="editCat" data-id="${cat.id}">✏️</button><button class="delCat" data-id="${cat.id}">🗑️</button></div></div>`; }); document.getElementById('catList').innerHTML = html; attachCategoryEvents(); }
+    // ==================== CATEGORIES CRUD ====================
+    async function saveCategoriesToFirebase() {
+        const catObj = {};
+        categories.forEach(c => { catObj[c.id] = c; });
+        await database.ref('categories').set(catObj);
+    }
+    function renderCategoryList() {
+        const container = document.getElementById('catList');
+        let html = '';
+        categories.forEach((cat, idx) => {
+            html += `<div class="cat-item">
+                        <div><strong>${idx+1}.</strong> ${escapeHtml(cat.name)}</div>
+                        <div>
+                            ${idx > 0 ? `<button class="move-up" data-id="${cat.id}">⬆️</button>` : ''}
+                            ${idx < categories.length-1 ? `<button class="move-down" data-id="${cat.id}">⬇️</button>` : ''}
+                            <button class="editCat" data-id="${cat.id}">✏️</button>
+                            <button class="delCat" data-id="${cat.id}">🗑️</button>
+                        </div>
+                    </div>`;
+        });
+        container.innerHTML = html;
+        attachCategoryEvents();
+    }
     function attachCategoryEvents() {
-        document.querySelectorAll('.move-up').forEach(btn=>btn.onclick=()=>{ let id=parseInt(btn.dataset.id), i=categories.findIndex(c=>c.id===id); if(i>0){ [categories[i-1],categories[i]]=[categories[i],categories[i-1]]; saveCategories(); renderCategoryList(); renderCategorySelect(); } });
-        document.querySelectorAll('.move-down').forEach(btn=>btn.onclick=()=>{ let id=parseInt(btn.dataset.id), i=categories.findIndex(c=>c.id===id); if(i<categories.length-1){ [categories[i+1],categories[i]]=[categories[i],categories[i+1]]; saveCategories(); renderCategoryList(); renderCategorySelect(); } });
-        document.querySelectorAll('.editCat').forEach(btn=>btn.onclick=()=>{ let id=parseInt(btn.dataset.id), cat=categories.find(c=>c.id===id), newName=prompt('Tên mới:',cat.name); if(newName){ cat.name=newName; saveCategories(); renderCategoryList(); renderCategorySelect(); } });
-        document.querySelectorAll('.delCat').forEach(btn=>btn.onclick=()=>{ if(confirm('Xóa?')){ let id=parseInt(btn.dataset.id); categories=categories.filter(c=>c.id!==id); if(categories.length){ let firstId=categories[0].id; products.forEach(p=>{ if(p.categoryId===id) p.categoryId=firstId; }); saveProducts(); } saveCategories(); renderCategoryList(); renderCategorySelect(); renderProductList(); } });
+        document.querySelectorAll('.move-up').forEach(btn => {
+            btn.onclick = async () => {
+                const id = parseInt(btn.dataset.id);
+                const idx = categories.findIndex(c => c.id === id);
+                if (idx > 0) {
+                    [categories[idx-1], categories[idx]] = [categories[idx], categories[idx-1]];
+                    await saveCategoriesToFirebase();
+                    renderCategoryList();
+                    renderCategorySelect();
+                }
+            };
+        });
+        document.querySelectorAll('.move-down').forEach(btn => {
+            btn.onclick = async () => {
+                const id = parseInt(btn.dataset.id);
+                const idx = categories.findIndex(c => c.id === id);
+                if (idx < categories.length-1) {
+                    [categories[idx+1], categories[idx]] = [categories[idx], categories[idx+1]];
+                    await saveCategoriesToFirebase();
+                    renderCategoryList();
+                    renderCategorySelect();
+                }
+            };
+        });
+        document.querySelectorAll('.editCat').forEach(btn => {
+            btn.onclick = async () => {
+                const id = parseInt(btn.dataset.id);
+                const cat = categories.find(c => c.id === id);
+                const newName = prompt('Tên mới:', cat.name);
+                if (newName) {
+                    cat.name = newName;
+                    await saveCategoriesToFirebase();
+                    renderCategoryList();
+                    renderCategorySelect();
+                }
+            };
+        });
+        document.querySelectorAll('.delCat').forEach(btn => {
+            btn.onclick = async () => {
+                if (confirm('Xóa danh mục?')) {
+                    const id = parseInt(btn.dataset.id);
+                    categories = categories.filter(c => c.id !== id);
+                    // Chuyển sản phẩm thuộc danh mục này về danh mục đầu tiên nếu còn
+                    if (categories.length > 0) {
+                        const firstId = categories[0].id;
+                        products.forEach(p => { if (p.categoryId === id) p.categoryId = firstId; });
+                        await saveProductsToFirebase();
+                    }
+                    await saveCategoriesToFirebase();
+                    renderCategoryList();
+                    renderCategorySelect();
+                    renderProductList();
+                }
+            };
+        });
     }
-    function addCategory() { let name=document.getElementById('catName').value.trim(); if(!name) return; let newId=categories.length?Math.max(...categories.map(c=>c.id))+1:3; categories.push({id:newId,name}); saveCategories(); renderCategoryList(); renderCategorySelect(); document.getElementById('catName').value=''; }
-    function renderCategorySelect() { let sel=document.getElementById('prodCategory'); sel.innerHTML=''; categories.forEach(c=>sel.appendChild(new Option(c.name,c.id))); }
+    async function addCategory() {
+        const name = document.getElementById('catName').value.trim();
+        if (!name) return;
+        const newId = categories.length ? Math.max(...categories.map(c => c.id)) + 1 : 1;
+        categories.push({ id: newId, name });
+        await saveCategoriesToFirebase();
+        renderCategoryList();
+        renderCategorySelect();
+        document.getElementById('catName').value = '';
+    }
+    function renderCategorySelect() {
+        const sel = document.getElementById('prodCategory');
+        sel.innerHTML = '';
+        categories.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.text = c.name;
+            sel.appendChild(opt);
+        });
+    }
 
-    function loadProducts() { const stored = localStorage.getItem('filmstore_products'); if(stored) products=JSON.parse(stored); else products=[{id:1,name:"Kodak Portra 400",price:350000,imageUrl:"https://picsum.photos/id/20/200/150",categoryId:1,stock:10},{id:2,name:"Fujifilm Superia 400",price:280000,imageUrl:"https://picsum.photos/id/21/200/150",categoryId:1,stock:8},{id:3,name:"Máy ảnh phim Canon AE-1",price:4500000,imageUrl:"https://picsum.photos/id/1/200/150",categoryId:2,stock:3}]; products.forEach(p=>{if(p.stock===undefined)p.stock=10;}); saveProducts(); renderProductList(); }
-    function saveProducts() { localStorage.setItem('filmstore_products',JSON.stringify(products)); }
-    function renderProductList() { let html=''; products.forEach(p=>{ let catName=categories.find(c=>c.id===p.categoryId)?.name||'?'; html+=`<div class="product-item"><div style="display:flex;gap:10px;"><img src="${p.imageUrl||'https://via.placeholder.com/50'}" style="width:45px;height:45px;border-radius:20px;"><div><strong>${escapeHtml(p.name)}</strong><br>${p.price.toLocaleString('vi-VN')}₫<br><small>${catName}</small><br>Tồn: ${p.stock}</div></div><div><button class="editProd" data-id="${p.id}">Sửa</button><button class="deleteProd" data-id="${p.id}">Xóa</button></div></div>`; }); document.getElementById('productList').innerHTML=html; attachProductEvents(); }
+    // ==================== PRODUCTS CRUD ====================
+    async function saveProductsToFirebase() {
+        const prodObj = {};
+        products.forEach(p => { prodObj[p.id] = p; });
+        await database.ref('products').set(prodObj);
+    }
+    function renderProductList() {
+        const container = document.getElementById('productList');
+        let html = '';
+        products.forEach(p => {
+            const catName = categories.find(c => c.id === p.categoryId)?.name || '?';
+            html += `<div class="product-item">
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <img src="${p.imageUrl || 'https://via.placeholder.com/50'}" style="width:45px;height:45px;border-radius:20px;">
+                            <div><strong>${escapeHtml(p.name)}</strong><br>${p.price.toLocaleString('vi-VN')}₫<br><small>${catName}</small><br>Tồn: ${p.stock}</div>
+                        </div>
+                        <div>
+                            <button class="editProd" data-id="${p.id}">Sửa</button>
+                            <button class="deleteProd" data-id="${p.id}">Xóa</button>
+                        </div>
+                    </div>`;
+        });
+        container.innerHTML = html;
+        attachProductEvents();
+    }
     function attachProductEvents() {
-        document.querySelectorAll('.editProd').forEach(btn=>btn.onclick=()=>{ let id=parseInt(btn.dataset.id), p=products.find(p=>p.id===id); if(p){ document.getElementById('prodName').value=p.name; document.getElementById('prodPrice').value=p.price; document.getElementById('prodStock').value=p.stock; document.getElementById('prodImage').value=p.imageUrl||''; document.getElementById('prodCategory').value=p.categoryId; document.getElementById('editId').value=p.id; } });
-        document.querySelectorAll('.deleteProd').forEach(btn=>btn.onclick=()=>{ if(confirm('Xóa?')){ let id=parseInt(btn.dataset.id); products=products.filter(p=>p.id!==id); saveProducts(); renderProductList(); let cart=JSON.parse(localStorage.getItem('filmstore_cart')||'[]'); cart=cart.filter(c=>c.id!==id); localStorage.setItem('filmstore_cart',JSON.stringify(cart)); } });
+        document.querySelectorAll('.editProd').forEach(btn => {
+            btn.onclick = () => {
+                const id = parseInt(btn.dataset.id);
+                const p = products.find(p => p.id === id);
+                if (p) {
+                    document.getElementById('prodName').value = p.name;
+                    document.getElementById('prodPrice').value = p.price;
+                    document.getElementById('prodStock').value = p.stock;
+                    document.getElementById('prodImage').value = p.imageUrl || '';
+                    document.getElementById('prodCategory').value = p.categoryId;
+                    document.getElementById('editId').value = p.id;
+                }
+            };
+        });
+        document.querySelectorAll('.deleteProd').forEach(btn => {
+            btn.onclick = async () => {
+                if (confirm('Xóa sản phẩm?')) {
+                    const id = parseInt(btn.dataset.id);
+                    products = products.filter(p => p.id !== id);
+                    await saveProductsToFirebase();
+                    renderProductList();
+                }
+            };
+        });
     }
-    function addOrUpdateProduct() { let name=document.getElementById('prodName').value.trim(), price=parseInt(document.getElementById('prodPrice').value), stock=parseInt(document.getElementById('prodStock').value), imageUrl=document.getElementById('prodImage').value.trim(), categoryId=parseInt(document.getElementById('prodCategory').value), editId=document.getElementById('editId').value; if(!name||isNaN(price)||isNaN(stock)){ alert('Đủ thông tin'); return; } const file=document.getElementById('prodImageFile').files[0]; if(file){ const reader=new FileReader(); reader.onload=e=>performSave(name,price,stock,e.target.result,categoryId,editId); reader.readAsDataURL(file); } else performSave(name,price,stock,imageUrl,categoryId,editId); }
-    function performSave(name,price,stock,imageUrl,categoryId,editId){ if(editId){ let idx=products.findIndex(p=>p.id==editId); if(idx!==-1) products[idx]={...products[idx],name,price,stock,imageUrl,categoryId}; } else{ let newId=products.length?Math.max(...products.map(p=>p.id))+1:4; products.push({id:newId,name,price,stock,imageUrl,categoryId}); } saveProducts(); renderProductList(); clearProductForm(); alert('Đã lưu'); }
-    function clearProductForm() { document.getElementById('prodName').value=''; document.getElementById('prodPrice').value=''; document.getElementById('prodStock').value=''; document.getElementById('prodImage').value=''; document.getElementById('prodImageFile').value=''; document.getElementById('editId').value=''; }
+    async function addOrUpdateProduct() {
+        let name = document.getElementById('prodName').value.trim();
+        let price = parseInt(document.getElementById('prodPrice').value);
+        let stock = parseInt(document.getElementById('prodStock').value);
+        let imageUrl = document.getElementById('prodImage').value.trim();
+        let categoryId = parseInt(document.getElementById('prodCategory').value);
+        const editId = document.getElementById('editId').value;
+        if (!name || isNaN(price) || isNaN(stock)) { alert('Nhập đủ thông tin'); return; }
+        const file = document.getElementById('prodImageFile').files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                imageUrl = e.target.result;
+                performProductSave(name, price, stock, imageUrl, categoryId, editId);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            performProductSave(name, price, stock, imageUrl, categoryId, editId);
+        }
+    }
+    async function performProductSave(name, price, stock, imageUrl, categoryId, editId) {
+        if (editId) {
+            const idx = products.findIndex(p => p.id == editId);
+            if (idx !== -1) products[idx] = { ...products[idx], name, price, stock, imageUrl, categoryId };
+        } else {
+            const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            products.push({ id: newId, name, price, stock, imageUrl, categoryId });
+        }
+        await saveProductsToFirebase();
+        renderProductList();
+        clearProductForm();
+        alert('Đã lưu');
+    }
+    function clearProductForm() {
+        document.getElementById('prodName').value = '';
+        document.getElementById('prodPrice').value = '';
+        document.getElementById('prodStock').value = '';
+        document.getElementById('prodImage').value = '';
+        document.getElementById('prodImageFile').value = '';
+        document.getElementById('editId').value = '';
+    }
 
-    function loadRentals() { const stored = localStorage.getItem('rental_items'); if(stored) rentItems = JSON.parse(stored); else rentItems = [ { id:1, name:"Canon EOS 5D Mark IV", pricePerDay:450000, imageUrl:"https://picsum.photos/id/1/200/150", stock:3 }, { id:2, name:"Sony A7 III", pricePerDay:400000, imageUrl:"https://picsum.photos/id/2/200/150", stock:2 }, { id:3, name:"Fujifilm X-T4", pricePerDay:350000, imageUrl:"https://picsum.photos/id/3/200/150", stock:4 } ]; saveRentals(); renderRentalList(); }
-    function saveRentals() { localStorage.setItem('rental_items', JSON.stringify(rentItems)); }
-    function renderRentalList() { let html=''; rentItems.forEach(item=>{ html+=`<div class="rental-item"><div style="display:flex;gap:10px;"><img src="${item.imageUrl||'https://via.placeholder.com/50'}" style="width:45px;height:45px;border-radius:20px;"><div><strong>${escapeHtml(item.name)}</strong><br>${item.pricePerDay.toLocaleString('vi-VN')}₫/ngày<br>Tồn: ${item.stock}</div></div><div><button class="editRent" data-id="${item.id}">Sửa</button><button class="deleteRent" data-id="${item.id}">Xóa</button></div></div>`; }); document.getElementById('rentalList').innerHTML=html; attachRentalEvents(); }
+    // ==================== RENTALS CRUD ====================
+    async function saveRentalsToFirebase() {
+        const rentObj = {};
+        rentItems.forEach(r => { rentObj[r.id] = r; });
+        await database.ref('rentals').set(rentObj);
+    }
+    function renderRentalList() {
+        const container = document.getElementById('rentalList');
+        let html = '';
+        rentItems.forEach(r => {
+            html += `<div class="rental-item">
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <img src="${r.imageUrl || 'https://via.placeholder.com/50'}" style="width:45px;height:45px;border-radius:20px;">
+                            <div><strong>${escapeHtml(r.name)}</strong><br>${r.pricePerDay.toLocaleString('vi-VN')}₫/ngày<br>Tồn: ${r.stock}</div>
+                        </div>
+                        <div>
+                            <button class="editRent" data-id="${r.id}">Sửa</button>
+                            <button class="deleteRent" data-id="${r.id}">Xóa</button>
+                        </div>
+                    </div>`;
+        });
+        container.innerHTML = html;
+        attachRentalEvents();
+    }
     function attachRentalEvents() {
-        document.querySelectorAll('.editRent').forEach(btn=>btn.onclick=()=>{ let id=parseInt(btn.dataset.id), item=rentItems.find(i=>i.id===id); if(item){ document.getElementById('rentName').value=item.name; document.getElementById('rentPrice').value=item.pricePerDay; document.getElementById('rentStock').value=item.stock; document.getElementById('rentImage').value=item.imageUrl||''; document.getElementById('editRentId').value=item.id; } });
-        document.querySelectorAll('.deleteRent').forEach(btn=>btn.onclick=()=>{ if(confirm('Xóa máy cho thuê?')){ let id=parseInt(btn.dataset.id); rentItems=rentItems.filter(i=>i.id!==id); saveRentals(); renderRentalList(); } });
+        document.querySelectorAll('.editRent').forEach(btn => {
+            btn.onclick = () => {
+                const id = parseInt(btn.dataset.id);
+                const r = rentItems.find(r => r.id === id);
+                if (r) {
+                    document.getElementById('rentName').value = r.name;
+                    document.getElementById('rentPrice').value = r.pricePerDay;
+                    document.getElementById('rentStock').value = r.stock;
+                    document.getElementById('rentImage').value = r.imageUrl || '';
+                    document.getElementById('editRentId').value = r.id;
+                }
+            };
+        });
+        document.querySelectorAll('.deleteRent').forEach(btn => {
+            btn.onclick = async () => {
+                if (confirm('Xóa máy cho thuê?')) {
+                    const id = parseInt(btn.dataset.id);
+                    rentItems = rentItems.filter(r => r.id !== id);
+                    await saveRentalsToFirebase();
+                    renderRentalList();
+                }
+            };
+        });
     }
-    function addRentItem() { let name=document.getElementById('rentName').value.trim(), price=parseInt(document.getElementById('rentPrice').value), stock=parseInt(document.getElementById('rentStock').value), imageUrl=document.getElementById('rentImage').value.trim(), editId=document.getElementById('editRentId').value; if(!name||isNaN(price)||isNaN(stock)){ alert('Đủ thông tin'); return; } const file=document.getElementById('rentImageFile').files[0]; if(file){ const reader=new FileReader(); reader.onload=e=>performRentSave(name,price,stock,e.target.result,editId); reader.readAsDataURL(file); } else performRentSave(name,price,stock,imageUrl,editId); }
-    function performRentSave(name,price,stock,imageUrl,editId){ if(editId){ let idx=rentItems.findIndex(i=>i.id==editId); if(idx!==-1) rentItems[idx]={...rentItems[idx],name,pricePerDay:price,stock,imageUrl}; } else{ let newId=rentItems.length?Math.max(...rentItems.map(i=>i.id))+1:4; rentItems.push({id:newId,name,pricePerDay:price,stock,imageUrl}); } saveRentals(); renderRentalList(); clearRentForm(); alert('Đã lưu máy cho thuê'); }
-    function clearRentForm() { document.getElementById('rentName').value=''; document.getElementById('rentPrice').value=''; document.getElementById('rentStock').value=''; document.getElementById('rentImage').value=''; document.getElementById('rentImageFile').value=''; document.getElementById('editRentId').value=''; }
+    async function addRentItem() {
+        let name = document.getElementById('rentName').value.trim();
+        let price = parseInt(document.getElementById('rentPrice').value);
+        let stock = parseInt(document.getElementById('rentStock').value);
+        let imageUrl = document.getElementById('rentImage').value.trim();
+        const editId = document.getElementById('editRentId').value;
+        if (!name || isNaN(price) || isNaN(stock)) { alert('Đủ thông tin'); return; }
+        const file = document.getElementById('rentImageFile').files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                imageUrl = e.target.result;
+                performRentSave(name, price, stock, imageUrl, editId);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            performRentSave(name, price, stock, imageUrl, editId);
+        }
+    }
+    async function performRentSave(name, price, stock, imageUrl, editId) {
+        if (editId) {
+            const idx = rentItems.findIndex(r => r.id == editId);
+            if (idx !== -1) rentItems[idx] = { ...rentItems[idx], name, pricePerDay: price, stock, imageUrl };
+        } else {
+            const newId = rentItems.length ? Math.max(...rentItems.map(r => r.id)) + 1 : 1;
+            rentItems.push({ id: newId, name, pricePerDay: price, stock, imageUrl });
+        }
+        await saveRentalsToFirebase();
+        renderRentalList();
+        clearRentForm();
+        alert('Đã lưu máy cho thuê');
+    }
+    function clearRentForm() {
+        document.getElementById('rentName').value = '';
+        document.getElementById('rentPrice').value = '';
+        document.getElementById('rentStock').value = '';
+        document.getElementById('rentImage').value = '';
+        document.getElementById('rentImageFile').value = '';
+        document.getElementById('editRentId').value = '';
+    }
 
-    function changePassword() {
-        const oldPass = document.getElementById('oldPassword').value;
-        const newPass = document.getElementById('newPassword').value;
-        const confirmPass = document.getElementById('confirmPassword').value;
-        if (!oldPass || !newPass || !confirmPass) { alert('Vui lòng nhập đầy đủ'); return; }
-        if (oldPass !== adminPassword) { alert('Mật khẩu cũ không đúng'); return; }
-        if (newPass !== confirmPass) { alert('Mật khẩu mới không khớp'); return; }
-        if (newPass.length < 4) { alert('Mật khẩu mới phải có ít nhất 4 ký tự'); return; }
-        saveAdminPassword(newPass);
-        document.getElementById('oldPassword').value = ''; document.getElementById('newPassword').value = ''; document.getElementById('confirmPassword').value = '';
+    // ==================== PASSWORD ====================
+    async function loadAdminPassword() {
+        const snap = await database.ref('adminPassword').once('value');
+        if (snap.exists()) adminPassword = snap.val();
+        else {
+            adminPassword = 'admin123';
+            await database.ref('adminPassword').set(adminPassword);
+        }
+    }
+    async function changePassword() {
+        const old = document.getElementById('oldPassword').value;
+        const newp = document.getElementById('newPassword').value;
+        const confirm = document.getElementById('confirmPassword').value;
+        if (!old || !newp || !confirm) { alert('Vui lòng nhập đầy đủ'); return; }
+        if (old !== adminPassword) { alert('Mật khẩu cũ không đúng'); return; }
+        if (newp !== confirm) { alert('Mật khẩu mới không khớp'); return; }
+        if (newp.length < 4) { alert('Mật khẩu mới phải có ít nhất 4 ký tự'); return; }
+        adminPassword = newp;
+        await database.ref('adminPassword').set(adminPassword);
+        alert('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
+        sessionStorage.removeItem('admin_auth');
+        checkAuth();
+    }
+
+    // ==================== AUTH ====================
+    function checkAuth() {
+        if (sessionStorage.getItem('admin_auth') === 'true') {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminApp').style.display = 'flex';
+            loadAllData();
+            applyAdminTheme();
+        } else {
+            document.getElementById('loginSection').style.display = 'flex';
+            document.getElementById('adminApp').style.display = 'none';
+        }
+    }
+    async function loadAllData() {
+        await loadConfig();
+        await loadCategories();
+        await loadProducts();
+        await loadRentals();
+        await loadOrders();
+        renderCategorySelect();
+        showBannerPreview();
+        showPaymentImagePreviews();
     }
 
     function escapeHtml(str) { return str.replace(/[&<>]/g, m=> m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
 
-    // Chuyển section
+    // ==================== SỰ KIỆN & NAVIGATION ====================
     document.querySelectorAll('.sidebar nav a').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -678,18 +1037,22 @@
             document.getElementById(`section-${sec}`).classList.add('active');
             document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
             link.classList.add('active');
-            if (sec === 'orders') renderOrders();
+            if (sec === 'orders') loadOrders();
         });
     });
     document.querySelector('.sidebar nav a').classList.add('active');
 
-    document.getElementById('doLogin')?.addEventListener('click', () => {
-        if (document.getElementById('password').value === adminPassword) {
+    document.getElementById('doLogin')?.addEventListener('click', async () => {
+        const entered = document.getElementById('password').value;
+        if (entered === adminPassword) {
             sessionStorage.setItem('admin_auth', 'true');
             checkAuth();
         } else alert('Sai mật khẩu!');
     });
-    document.getElementById('logoutBtnSidebar')?.addEventListener('click', () => { sessionStorage.removeItem('admin_auth'); location.reload(); });
+    document.getElementById('logoutBtnSidebar')?.addEventListener('click', () => {
+        sessionStorage.removeItem('admin_auth');
+        location.reload();
+    });
 
     document.getElementById('saveGeneralBtn')?.addEventListener('click', saveGeneral);
     document.getElementById('saveColorBtn')?.addEventListener('click', saveColor);
@@ -706,11 +1069,22 @@
     document.getElementById('addOrUpdateBtn')?.addEventListener('click', addOrUpdateProduct);
     document.getElementById('addRentBtn')?.addEventListener('click', addRentItem);
     document.getElementById('changePasswordBtn')?.addEventListener('click', changePassword);
-    document.getElementById('logoUpload')?.addEventListener('change', e=>{ if(e.target.files[0]){ let reader=new FileReader(); reader.onload=ev=>{ document.getElementById('logoPreview').src=ev.target.result; document.getElementById('logoPreview').style.display='block'; document.getElementById('logoUrlInput').value=''; }; reader.readAsDataURL(e.target.files[0]); } });
+    document.getElementById('logoUpload')?.addEventListener('change', (e) => {
+        if (e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                document.getElementById('logoPreview').src = ev.target.result;
+                document.getElementById('logoPreview').style.display = 'block';
+                document.getElementById('logoUrlInput').value = '';
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
 
     populateFontSelects();
-    loadAdminPassword();
-    checkAuth();
+    loadAdminPassword().then(() => {
+        checkAuth();
+    });
 </script>
 </body>
 </html>
