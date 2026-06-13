@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600&family=Poppins:wght@400;600&family=Roboto:wght@400;500;700&family=Nunito:wght@400;600;700&family=Open+Sans:wght@400;600&family=Noto+Sans:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;600&family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&family=Montserrat:wght@400;500;600&family=Source+Sans+3:wght@400;600&family=Playfair+Display:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* Reset & Biến */
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Quicksand',sans-serif; }
         body { background: var(--admin-bg, #e9e2d0); display: flex; min-height: 100vh; }
         :root {
@@ -20,6 +21,7 @@
             --admin-border: #1f1a10;
             --admin-btn: #f0bc6e;
         }
+        /* SIDEBAR - PC */
         .sidebar {
             width: 260px;
             background: var(--admin-sidebar-bg);
@@ -30,12 +32,12 @@
             flex-direction: column;
             justify-content: space-between;
         }
-        .sidebar h2 { font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 2rem; text-align: center; color: #ffc857; }
+        .sidebar h2 { font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 2rem; text-align: center; color: #ffc857; word-break: break-word; }
         .sidebar nav { flex: 1; }
         .sidebar nav a {
             display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin: 8px 0;
             background: #3f3c2e; border-radius: 40px; text-decoration: none; color: var(--admin-sidebar-text);
-            font-weight: bold; border: 1px solid #6b5a3e; position: relative;
+            font-weight: bold; border: 1px solid #6b5a3e; transition: 0.1s;
         }
         .sidebar nav a:hover, .sidebar nav a.active { background: var(--admin-btn); color: #2d2b1f; box-shadow: 3px 3px 0 var(--admin-border); }
         .notification-badge { background-color: #ff6b6b; color: white; border-radius: 30px; padding: 2px 8px; font-size: 0.7rem; margin-left: auto; }
@@ -44,6 +46,7 @@
         .social-links a { color: var(--admin-sidebar-text); font-size: 1.4rem; transition: 0.2s; }
         .social-links a:hover { color: var(--admin-btn); }
         .logout-btn { background: #b45a3b; color: white; text-align: center; padding: 10px; border-radius: 40px; cursor: pointer; font-weight: bold; width: 100%; border: none; }
+        /* MAIN CONTENT */
         .main-content { flex: 1; padding: 1.5rem; overflow-y: auto; }
         .admin-panel { background: var(--admin-content-bg); border-radius: 48px; border: 4px solid var(--admin-border); padding: 1.5rem; box-shadow: 12px 12px 0 #bbaa7a; }
         .section { display: none; }
@@ -51,8 +54,16 @@
         h2 { font-family: 'Fredoka One', cursive; margin-bottom: 1rem; }
         .form-group { margin-bottom: 1rem; }
         label { font-weight: 700; display: block; margin-bottom: 5px; }
-        input, textarea, button, select { padding: 8px 14px; border-radius: 60px; border: 2px solid #2b241a; font-weight: bold; margin-right: 8px; margin-top: 5px; background: white; }
-        textarea { border-radius: 24px; }
+        input, textarea, button, select {
+            padding: 8px 14px;
+            border-radius: 60px;
+            border: 2px solid #2b241a;
+            font-weight: bold;
+            margin-right: 8px;
+            margin-top: 5px;
+            background: white;
+        }
+        textarea { border-radius: 24px; width: 100%; }
         button { background: var(--admin-btn); cursor: pointer; box-shadow: 3px 3px 0 #6b4c2c; transition: 0.05s linear; }
         button:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 #6b4c2c; }
         .color-input { width: 60px; height: 40px; }
@@ -69,13 +80,41 @@
         .payment-image-preview { max-width: 200px; max-height: 300px; border-radius: 20px; margin-top: 8px; border: 2px solid #9b7a4a; }
         .grid-2cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         hr { margin: 1rem 0; border: 1px dashed #c0aa7a; }
+
+        /* RESPONSIVE MOBILE - giữ nguyên PC, chỉ điều chỉnh mobile */
         @media (max-width: 880px) {
             body { flex-direction: column; }
-            .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 0.8rem 1rem; border-right: none; border-bottom: 4px solid var(--admin-border); gap: 10px; }
-            .sidebar h2 { font-size: 1.2rem; margin-bottom: 0; }
-            .sidebar nav { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 8px; padding-bottom: 4px; flex: 1; }
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0.8rem 1rem;
+                border-right: none;
+                border-bottom: 4px solid var(--admin-border);
+                gap: 10px;
+            }
+            .sidebar h2 { font-size: 1.2rem; margin-bottom: 0; width: auto; }
+            .sidebar nav {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                gap: 8px;
+                padding-bottom: 4px;
+                -webkit-overflow-scrolling: touch;
+                flex: 1;
+            }
             .sidebar nav a { margin: 0; padding: 6px 12px; font-size: 0.8rem; white-space: nowrap; }
-            .sidebar-footer { display: flex; flex-direction: row; gap: 12px; align-items: center; margin-top: 0; padding-top: 0; border-top: none; }
+            .sidebar-footer {
+                display: flex;
+                flex-direction: row;
+                gap: 12px;
+                align-items: center;
+                margin-top: 0;
+                padding-top: 0;
+                border-top: none;
+            }
             .social-links { margin-bottom: 0; gap: 8px; }
             .social-links a { font-size: 1.2rem; }
             .logout-btn { width: auto; padding: 6px 12px; font-size: 0.8rem; }
@@ -85,7 +124,7 @@
             .form-group input, .form-group select, .form-group textarea { width: 100%; margin-right: 0; }
             .product-item, .cat-item, .rental-item, .order-item { flex-direction: column; align-items: flex-start; }
             .order-details { width: 100%; }
-            button { margin-top: 10px; width: 100%; }
+            .admin-panel button { width: 100%; margin-top: 8px; }
             .product-item button, .cat-item button, .rental-item button, .order-item button { width: auto; margin: 5px 5px 0 0; }
         }
         @media (max-width: 480px) {
@@ -291,7 +330,7 @@
     let categories = [];
     let products = [];
     let rentItems = [];
-    let adminPassword = 'admin123'; // sẽ đọc từ Firebase
+    let adminPassword = 'admin123';
 
     // Danh sách font
     const fontOptions = [
@@ -327,7 +366,7 @@
         });
     }
 
-    // ==================== LOAD DATA FROM FIREBASE ====================
+    // ==================== LOAD DATA ====================
     async function loadConfig() {
         const snap = await database.ref('config').once('value');
         if (snap.exists()) config = snap.val();
@@ -499,7 +538,7 @@
                     const orderData = snap.val();
                     orderData.status = 'Đã duyệt';
                     await orderRef.set(orderData);
-                    loadOrders(); // refresh
+                    loadOrders();
                 }
             });
         });
@@ -761,7 +800,6 @@
                 if (confirm('Xóa danh mục?')) {
                     const id = parseInt(btn.dataset.id);
                     categories = categories.filter(c => c.id !== id);
-                    // Chuyển sản phẩm thuộc danh mục này về danh mục đầu tiên nếu còn
                     if (categories.length > 0) {
                         const firstId = categories[0].id;
                         products.forEach(p => { if (p.categoryId === id) p.categoryId = firstId; });
@@ -860,11 +898,11 @@
             const reader = new FileReader();
             reader.onload = async (e) => {
                 imageUrl = e.target.result;
-                performProductSave(name, price, stock, imageUrl, categoryId, editId);
+                await performProductSave(name, price, stock, imageUrl, categoryId, editId);
             };
             reader.readAsDataURL(file);
         } else {
-            performProductSave(name, price, stock, imageUrl, categoryId, editId);
+            await performProductSave(name, price, stock, imageUrl, categoryId, editId);
         }
     }
     async function performProductSave(name, price, stock, imageUrl, categoryId, editId) {
@@ -950,11 +988,11 @@
             const reader = new FileReader();
             reader.onload = async (e) => {
                 imageUrl = e.target.result;
-                performRentSave(name, price, stock, imageUrl, editId);
+                await performRentSave(name, price, stock, imageUrl, editId);
             };
             reader.readAsDataURL(file);
         } else {
-            performRentSave(name, price, stock, imageUrl, editId);
+            await performRentSave(name, price, stock, imageUrl, editId);
         }
     }
     async function performRentSave(name, price, stock, imageUrl, editId) {
@@ -1028,7 +1066,7 @@
 
     function escapeHtml(str) { return str.replace(/[&<>]/g, m=> m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
 
-    // ==================== SỰ KIỆN & NAVIGATION ====================
+    // ==================== KHỞI TẠO ====================
     document.querySelectorAll('.sidebar nav a').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1082,9 +1120,7 @@
     });
 
     populateFontSelects();
-    loadAdminPassword().then(() => {
-        checkAuth();
-    });
+    loadAdminPassword().then(() => checkAuth());
 </script>
 </body>
 </html>
